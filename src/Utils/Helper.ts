@@ -1,4 +1,4 @@
 export const getFullUrl = (url:string) =>{
-    const baseUrl :string = 'http://0.0.0.0:5000'
+    const baseUrl :string = 'http://147.182.206.220'
     return  baseUrl + url
 }
