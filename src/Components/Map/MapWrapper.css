@@ -1,0 +1,37 @@
+.car-icon{
+    cursor: pointer;
+}
+.popup-container{
+    
+}
+.mapboxgl-popup-content{
+    width: 50vw !important;
+}
+.popup-header{
+    display: flex;    
+}
+.popup-header >img {
+    width: 45px;
+}
+.popup-header >p{
+    font-size: 16px;
+    font-weight: 500;
+}
+.popup-content{
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+}
+.popup-content > img{
+    border: 1px solid;
+    padding: 5px;
+}
+td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+  }
+  
+  tr:nth-child(even) {
+    background-color: #dddddd;
+  }
