@@ -10,9 +10,10 @@ import { getFullUrl } from '../Utils/Helper';
 import { Token } from '../Utils/constants';
 import { Tooltip } from 'primereact/tooltip';
 import { Divider } from 'primereact/divider';
+
 type AlarmProps ={
     Alarms:Array<CarAlarmProps>
-  }
+}
   
 export const MenuItems = (props:any) => {
     const toast = useRef<Toast>(null);
@@ -43,7 +44,7 @@ export const MenuItems = (props:any) => {
         }
         // avoid multiple screen renders
         return () => setShowAlerts(false)
-    },[newAlarms])
+    },[])
     const items: MenuItem[] = [
         {
             label: 'Add',
@@ -68,7 +69,7 @@ export const MenuItems = (props:any) => {
     </div>
     return (
         <>
-        <Dialog header="New alert - Unit : 1356089" visible={showAlerts} style={{ width: '45vw' }} onHide={() => setShowAlerts(false)}>
+        <Dialog header="New alert - Unit : 1356089" visible={showAlerts} style={{ width: '48vw' }} onHide={() => setShowAlerts(false)}>
                 <RenderNotifications Alarms={newAlarms}/>
         </Dialog>
             <div className='floating-menu'>
@@ -89,6 +90,7 @@ const RenderNotifications:FunctionComponent<AlarmProps> = ({Alarms}) => {
             
             <>
              <div key={i} className= 'notification-popups'>
+             <p  data-pr-tooltip="Time"  className='custom-target-icon'>{x.alarmTime}</p>
               <p  data-pr-tooltip="Unit name"  className='custom-target-icon'>{x.machineName}</p>
              
               <p  data-pr-tooltip="Alert"  className='custom-target-icon'>{x.alarDescription}</p>

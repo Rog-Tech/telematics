@@ -101,7 +101,7 @@ const TracksScreen = (props:any) => {
   return (
    <>
     <div className='tracks-container'>
-      <label className='tracks-label'>Unit ID</label>
+      <label className='tracks-label'>מספר יחידה</label>
       <Dropdown className='tracks-dropdown' value={selectedCar} onChange={(e) => props.setUnitId(e.value)} options={countries} optionLabel="name" placeholder="Select a vehicle" 
         filter   />
       
@@ -123,28 +123,28 @@ const MessageScreen = (props:any) => {
   return (
    <>
     <div className='tracks-container'>
-      <label className='tracks-label'>Unit Id</label>
-      <Dropdown className='tracks-dropdown' value={selectedCar} onChange={(e) => setselectedCar(e.value)} options={countries} optionLabel="name" placeholder="Select a vehicle" 
+      <label className='tracks-label'>מספר מכשיר</label>
+      <Dropdown className='tracks-dropdown' value={selectedCar} onChange={(e) => setselectedCar(e.value)} options={countries} optionLabel="name" placeholder="בחירת מכשיר" 
     filter   />
       
     </div>
     
 
     <div className='tracks-container'>
-      <label className='tracks-label'>Unit Name</label>
+      <label className='tracks-label'>שם יחידה</label>
       <InputText value='cgch253536' readOnly />
     </div>
     <div className='tracks-container'>
-      <label className='tracks-label'>Message Type</label>
+      <label className='tracks-label'>סוג הודעה</label>
       <InputText value='cgch253536' readOnly />
     </div>
     <Divider />
     <Panel header="Summary" toggleable>
-        <p className="m-0 tracks-label">Total Messages:</p>
-        <p className="m-0 tracks-label">Total Time:</p>
-        <p className="m-0 tracks-label">Distance:</p>
-        <p className="m-0 tracks-label">Average Speed:</p>
-        <p className="m-0 tracks-label">Top Speed:</p>
+        <p className="m-0 tracks-label">:סה"כ הודעות</p>
+        <p className="m-0 tracks-label">סה"כ זמן:</p>
+        <p className="m-0 tracks-label">מרחק:</p>
+        <p className="m-0 tracks-label">מהירות ממוצעת:</p>
+        <p className="m-0 tracks-label">מהירות מירבית:</p>
     </Panel>
    </>
   )
@@ -177,7 +177,7 @@ const MonitorControl:FunctionComponent<CarDto> = ({car}) => {
    <Tooltip target=".custom-target-icon"  />
     <div className='tracks-container'>
       <div className='tracks-container'>
-        <InputText className='monitor-search-term' value={searchTerm} onChange={handleSearch}  placeholder='Search by imei or ..'/>
+        <InputText className='monitor-search-term' value={searchTerm} onChange={handleSearch}  placeholder='חיפוש לפי מספר מכשיר'/>
       </div>
     </div>
     <Divider />
@@ -187,16 +187,16 @@ const MonitorControl:FunctionComponent<CarDto> = ({car}) => {
       <Checkbox onChange={()=>handleDisplay} checked={checked}></Checkbox>
       <img src={carSmall} alt="" className='custom-target-icon' data-pr-tooltip={r.exData} />
       {r.carId}
-      <i  data-pr-tooltip="Track unit on the map" 
+      <i  data-pr-tooltip="מציאת היחידה במפה" 
              className="pi pi-map-marker custom-target-icon" style={{ color: 'green' }}></i>
       <i  className="pi pi-play custom-target-icon" style={{ color: 'slateblue' }}></i>
       <i className="pi pi-pause custom-target-icon" style={{ color: 'green' }}></i>
       <i className="pi pi-info-circle custom-target-icon" 
-          style={{ color: 'green' }}  data-pr-tooltip="Status is unknown"  ></i>
+          style={{ color: 'green' }}  data-pr-tooltip="סטטוס לא ידוע"  ></i>
       <img src={batteryStatus} alt="" 
           className='custom-target-icon img-icons' 
             data-pr-tooltip={r.exData} />
-      <i data-pr-tooltip="The unit is online" className="pi pi-wifi custom-target-icon" style={{ color: 'green' }}></i>
+      <i data-pr-tooltip="היחידה מופעלת" className="pi pi-wifi custom-target-icon" style={{ color: 'green' }}></i>
     </div>
     )}
    </>
@@ -308,27 +308,28 @@ const Notifications = (props:any) => {
    <>
     <Dialog header="Send Notification" visible={show} style={{ width: '35vw' }} onHide={() => setShow(false)}>
     <div className="share">
-            <label className='labels'>Phone Number</label>
+            <label className='labels'>מספר טלפון</label>
             <InputText className='input' value={phone}  onChange={(e)=>setPhone(e.target.value)} placeholder="+ country code e.g +254700000"/>
        </div>
       <Button disabled={!canSend} className='button' onClick={sendNotification} icon="pi pi-send" label='Send'/>
    </Dialog>
    <Tooltip target=".custom-target-icon"  />
    <div className='monitor-search-icons'>
-    <Button label='New' />
+    <Button label='חדש' />
     {/* <Dropdown value={selectedUnit} placeholder='All' 
        onChange={(e: DropdownChangeEvent) => setSelectedUnit(e.value)} 
       options={options} optionLabel="name" /> */}
     <span className="p-input-icon-left">
         <i className="pi pi-search" />
-        <InputText placeholder="Search" value={searchTerm} onChange={Search}/>
+        <InputText placeholder="חיפוש" value={searchTerm} onChange={Search}/>
     </span>
    </div>
    <table className='table'>
    <Tooltip target=".custom-target-icon"  />
     <tr>
+      
       <th>
-       Description
+       תיאור
       </th>
       <th>
         <i data-pr-tooltip="Disable notifications" 
