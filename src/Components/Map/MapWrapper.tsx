@@ -1,135 +1,81 @@
-import axios from 'axios';
-import React, { FC, useCallback, useRef } from 'react'
+import React, { useCallback, useRef } from 'react'
 import Map, { MapRef, Marker, NavigationControl, Popup } from 'react-map-gl';
-import { basicAuth } from '../../Utils/constants';
-import { getFullUrl } from '../../Utils/Helper';
 import Car  from '../../assets/L_9.png'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import './MapWrapper.css'
+import './fonts.css'
 import { vehiclesTest } from '../../Utils/Vehicles';
 import { Divider } from 'primereact/divider';
+import { Tracks } from '../../Screens/Fragments/Tracks';
+import { CarProps } from '../../types/Types';
+import { MenuItems } from '../../Hooks/menuItems';
+import mapboxgl from 'mapbox-gl';
+// import { setRTLTextPlugin } from 'mapbox-gl-rtl-text';
 
-// To Do : move to types
-interface CarProps {
-    accStatus: number,
-    accTime: number,
-    carId: number,
-    dir: number,
-    exData:string,
-    gateType: string,
-    heartTime:number,
-    lat:number,
-    latc: number,
-    lon:number,
-    lonc: number,
-    machineType: number,
-    online: number,
-    orginalSpeed: number,
-    pointTime: number,
-    pointType: number,
-    speed: number,
-    staticTime: number,
-    status: string
-}
 
-type PopupProperties ={
-  longitude:number,
-  latitude:number,
-  layerID:string,
-  feature:Array<{}>
-  recordId:number
-}
-interface MapDto{
-  vehicles :Array<CarProps>
-}
 const initialViewPoint = {
-    latitude: 32.045471,
-    longitude: 34.766709,
-    zoom: 8,
+    latitude: 32.104139,
+    longitude: 34.894497,
+    zoom: 12,
 }
 
 const MAPBOX_TOKEN = process.env.REACT_APP_TOKEN;
 
-const MapWrapper = ()=> {
-  const [popupContent,setPopupContent]= React.useState<CarProps>();
+const MapWrapper = (props:any)=> {
+  const [popupContent,setPopupContent]= React.useState<CarProps|null>();
   const [viewpoint,setViewPoint] = React.useState(initialViewPoint);
   const [data,setData] = React.useState(Array<CarProps>());
   const [cursor,setCursor] = React.useState<string>('pointer');
   const mapRef = useRef<MapRef>(null);
-
+  const [play,setPlay] =  React.useState<boolean>(props.playTrack)
   // handle map clicks: TO DO - use marker event propagation instead
-  const handleMapClick = useCallback((event:any) => {
-    const feature = event.features && event.features[0];
-    if (feature) {
-      console.log(feature)
-      const keys = Object.keys(feature.properties)
-      console.log(keys)
-      // setObjectkeys(keys)
-      const c = keys.map((x,index)=>{
-        return {
-          [keys[index]]: feature.properties[x]
-        }
-      })
-      console.log(c)
-      // setFeatureAttributes(c)
-      
-    }
-  }, []);
-
-  
-  React.useEffect(() => {
-    const interval = setInterval(async () => {
-      setData(vehiclesTest)
-    //  axios.get(getFullUrl('/api/v1/gps/cars'), {
-    //     auth: {
-    //       username: 'test',
-    //       password: 'password'
-    //     }
-    //   })
-    //     .then(response => {
-    //       const d =  response.data as Array<CarProps>
-    //       console.log(d)
-    //       setData(d)
-    //     })
-    //     .catch(error => {
-    //       console.log(error);
-    //     });
-      //  pull  data after  every 5 seconds 
-       // set data from the response 
-    }, 5000);
-
-    // clean up
-    return () => clearInterval(interval);
-  }, []);
-
-  // get interactive layer ids
 
   React.useEffect(()=>{
-    if(mapRef && mapRef.current){
-      const map = mapRef.current.getMap();
-      const lyrs = map.getStyle().layers
-      // console.log(lyrs)
-    }
-    console.log(popupContent)
-  },[])
+    setPlay(props.playTrack)
+  },[props]) 
+
   // switch from pan to pointer
   const onMouseEnter = useCallback(()=>setCursor('pointer'),[])
   const onMouseLeave = useCallback(()=>setCursor('auto'),[])
+  const onPopupClose = ()=>{
+    setPopupContent(null)
+  } 
+
+  React.useEffect(()=>{
+    // let language:string = "fe"
+    // if (mapRef && mapRef.current) {
+    //   const map =  mapRef.current.getMap();
+    //   map.setLayoutProperty('country-label','text-field',[
+    //       'get',
+    //       `name_${language}`
+    //   ])
+    //   // new mapboxgl.setRTLTextPlugin(map)
+    //   // map.addControl(new mapboxgl.setRTLTextPlugin('https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-rtl-text/v0.2.0/mapbox-gl-rtl-text.js'));
+    // }
+  },[mapRef]) 
   return (
+   <>
+    <MenuItems  />
     <Map 
       ref={mapRef}
       initialViewState={viewpoint}
       mapboxAccessToken={MAPBOX_TOKEN}
-      style={{width: "100vw", height: "100vh"}}
-      mapStyle="mapbox://styles/mapbox/streets-v9"
+      style={{width: "70vw", height: "100vh"}}
+      mapStyle='mapbox://styles/chann/clef9nc62000601pgkf94y02a'
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       cursor={cursor}
+      // localIdeographFontFamily="HebrewFont"
     >
-    {data &&(<CarMarkers setPopupContent = {setPopupContent} vehicles={data}/>)}
+   
     {
       popupContent && (
-        <Popup longitude={popupContent.lon} latitude={popupContent.lat}>
+        <Popup
+         longitude={popupContent.lon} 
+         latitude={popupContent.lat}
+         onClose={onPopupClose}
+         offset={[0, -10]} closeOnClick={false}
+         >
            <div className='popup-container'>
               <div className="popup-header">
                   <img 
@@ -150,8 +96,8 @@ const MapWrapper = ()=> {
               <div>
                 <table style={{width:"100%"}}>
                   <tr>
-                    <td>{popupContent.accStatus}</td>
-                    <td>{popupContent.orginalSpeed}{" Km"}</td>
+                    <td></td>
+                    <td>{" Km"}</td>
                     <td>{"Lat : " + popupContent.lat + " Long: " +  popupContent.lon}</td>
                   </tr>
                 </table>
@@ -162,9 +108,9 @@ const MapWrapper = ()=> {
                       <th>Sensor values:</th>
                     </tr>
                       <tr>
-                    <td>{popupContent.accStatus}</td>
-                    <td>{popupContent.orginalSpeed}</td>
-                    <td>{popupContent.online}</td>
+                    <td>{}</td>
+                    <td>{}</td>
+                    <td>{}</td>
                   </tr>
                 </table>
               </div>
@@ -176,14 +122,31 @@ const MapWrapper = ()=> {
     <div style={{ position: 'absolute', right: 0 }}>
         <NavigationControl />
     </div>
-     
+    {/* <Button icon="pi pi-arrow-right" onClick={() => setVisible(true)} /> */}
+    {props.showTracks &&( <Tracks car={vehiclesTest} animation={play}/>)}
+    {props.data &&<CarMarkers setPopupContent = {setPopupContent} 
+        vehicles={props.data}/>}
+    
+    {/* {props.notifications && (<CarMarkers setPopupContent = {setPopupContent} 
+        vehicles={props.data}/>)}
+    {props.messages &&(<CarMarkers setPopupContent = {setPopupContent} 
+        vehicles={props.data}/>)}
+    {} */}
     </Map>
+   </>
   )
 }
 
 export default MapWrapper
 
 const CarMarkers = (props:any) => {
+  const [content,setContent]= React.useState<CarProps | null>();
+  //  TO DO : remove for testing only
+  React.useEffect(()=>{
+    props.setPopupContent(content)
+  },[content])
+
+
   return (
    <>
     {
@@ -194,14 +157,14 @@ const CarMarkers = (props:any) => {
         //  it will immediately close the popup
         // with `closeOnClick: true`
         e.originalEvent.stopPropagation();
-        props.setPopupContent(r)
-        // console.log(r);
+        // props.setPopupContent(r)
+        setContent(r)
       }} key={index} longitude={r.lon} latitude={r.lat}>
       <img 
         src={Car}
         alt="Car icon"
         className="car-icon"
-        style={{ transform: `rotate(${0}deg)` }}
+        style={{ transform: `rotate(${r.dir}deg)` }}
       />
     </Marker>)
     }

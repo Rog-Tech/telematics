@@ -2,56 +2,94 @@ import React from 'react'
 import { NavLink } from 'react-router-dom'
 import {Divider} from 'primereact/divider'
 import './Header.css'
-const Header = () => {
+import logo from '../../assets/logo.png'
+import CompanyLogo from '../../assets/CompanyLogo.png'
+const Header = (props:any) => {
+  const [activeDiv, setActiveDiv] = React.useState<number | null>(2);
+  const setSelectedTab = (type: "Monitoring" | "Messages" | "Tracks" | "Geofence" | "Notifications") =>{
+    switch (type) {
+      case "Monitoring":
+        props.setTracks(false)
+        props.setmonitoring(true) 
+        props.setMsg(false) 
+        props.setNotifications(false)
+        setActiveDiv(2) 
+        break;
+      case "Messages":
+        props.setTracks(false) 
+        props.setMsg(true) 
+        props.setmonitoring(false) 
+        props.setNotifications(false) 
+        setActiveDiv(3) 
+        break;
+      case "Tracks":
+        props.setTracks(true) 
+        props.setMsg(false) 
+        props.setmonitoring(false) 
+        props.setNotifications(false) 
+        setActiveDiv(4) 
+        break;
+      case "Notifications":
+        props.setTracks(false) 
+        props.setMsg(false) 
+        props.setmonitoring(false) 
+        props.setNotifications(true) 
+        setActiveDiv(5) 
+        break;  
+      case "Geofence":
+        break;
+      default:
+        break;
+    }
+  }
   return (
-    <div className='header-container grid'>
-      <div className='col-1 logo'>
-        <p>Logo</p>
+      <div className="grid grid-nogutter">
+          <div className="col-12 md:col-6 lg:col-3">
+            <img className='header-logo' src={logo} alt="" />
+          </div>
+          <div className="col-12 md:col-6 lg:col-7">
+              <div className="items">
+                  <div  onClick={() => setActiveDiv(1)} className= {activeDiv ===1 ? "header-items active-links" : "header-items"} >
+                    <NavLink to='/analytics' >
+                      <i className="pi pi-chart-bar"  style={{'fontSize': '0.8rem', marginRight:"10px"}}></i>
+                      Analytics</NavLink>
+                  </div>
+                  <div className= {activeDiv ===2 ? "header-items active-links" : "header-items"}>
+                    <NavLink to='/dashboard' onClick={()=> setSelectedTab("Monitoring")}>
+                        <i className="pi pi-globe" style={{'fontSize': '0.8rem', marginRight:"10px"}}></i>
+                        Monitoring</NavLink>
+                  </div>
+                  <div className= {activeDiv ===3 ? "header-items active-links" : "header-items"}>
+                     <NavLink onClick={()=>setSelectedTab("Messages")} to='/dashboard' >
+                        <i className="pi pi-comments" style={{'fontSize': '0.8rem', marginRight:"10px"}}></i>
+                          Messages</NavLink>
+                   </div>
+                   <div className= {activeDiv ===4 ? "header-items active-links" : "header-items"}>
+                      <NavLink onClick={()=>setSelectedTab("Tracks")} to='/dashboard'>
+                       <i className="pi pi-flag-fill" style={{'fontSize': '0.8rem', marginRight:"10px"}}></i>
+                       Tracks</NavLink>
+                    </div>
+                    <div className='header-items'>
+                      <NavLink to='/dashboard'>
+                        <i className="pi pi-map" style={{'fontSize': '0.8rem', marginRight:"10px"}}></i>
+                       Geofence</NavLink>
+                    </div>
+                    <div className= {activeDiv ===5 ? "header-items active-links" : "header-items"}>
+                      <NavLink onClick={()=>setSelectedTab("Notifications")} to='/dashboard' >
+                        <i className="pi pi-bell" style={{'fontSize': '0.8rem', marginRight:"10px"}}></i>
+                       Notifications</NavLink>
+                    </div>
+              </div>
+          </div>
+             
+
+          <div className="col-12 md:col-6 lg:col-2">
+              <div className='user'>
+              <i className="pi pi-ellipsis-v header-eclipse"></i>
+                <p>Administrator</p>
+              </div>
+          </div>
       </div>
-      <div className="col-8 header-item-menu">
-          <div className='header-items'>
-              <NavLink to='/dashboard' className={({ isActive }) =>
-                    (isActive ? "active-links" : "link")}>
-                      <i className="pi pi-chart-bar" style={{'fontSize': '1.2rem', marginRight:"10px"}}></i>
-                      Dashboard</NavLink>
-          </div>
-          <Divider layout="vertical" />
-          <div className='header-items'>
-              <NavLink to='/dashboard' className={({ isActive }) =>
-                    (isActive ? "active-links" : "link")}>
-                      <i className="pi pi-globe" style={{'fontSize': '1.2rem', marginRight:"10px"}}></i>
-                      Monitoring</NavLink>
-          </div>
-          <Divider layout="vertical" />
-          <div className='header-items'>
-              <NavLink to='/dashboard' className={({ isActive }) =>
-                    (isActive ? "active-links" : "link")}>
-                      <i className="pi pi-bell" style={{'fontSize': '1.2rem', marginRight:"10px"}}></i>
-                      Messages</NavLink>
-          </div>
-          <Divider layout="vertical" />
-          <div className='header-items'>
-              <NavLink to='/dashboard' className={({ isActive }) =>
-                    (isActive ? "active-links" : "link")}>
-                      <i className="pi pi-truck" style={{'fontSize': '1.2rem', marginRight:"10px"}}></i>
-                      Tracks</NavLink>
-          </div>
-          <Divider layout="vertical" />
-          <div className='header-items'>
-              <NavLink to='/dashboard' className={({ isActive }) =>
-                    (isActive ? "active-links" : "link")}>
-                      <i className="pi pi-map" style={{'fontSize': '1.2rem', marginRight:"10px"}}></i>
-                      Geofence</NavLink>
-          </div>
-      </div>
-      <i className="pi pi-ellipsis-v header-eclipse"></i>
-       <div className="col-3">
-      
-          <div className='user'>
-            <p>Chann</p>
-          </div>
-      </div>
-    </div>
   )
 }
 
