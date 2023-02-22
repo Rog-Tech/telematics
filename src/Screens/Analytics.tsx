@@ -9,7 +9,8 @@ import RowChart from './Charts/rowChart'
 type CarDto = {
   data :Array<CarAlarmProps>
 }
-export const Analytics = () => {
+export const Analytics:FunctionComponent<CarDto> = ({data}) => {
+
   return (
     <>
     <p style={{paddingRight:"20px"}}>All Units</p>
