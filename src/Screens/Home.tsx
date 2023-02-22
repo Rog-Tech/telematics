@@ -1,12 +1,16 @@
-import React from 'react'
 import {Button} from 'primereact/button'
-import { useLocation, useNavigate } from 'react-router-dom'
-export const Home = () => {
-  const navigate = useNavigate()
+import { useNavigate } from 'react-router-dom'
+import {useTranslation,TransProps} from 'react-i18next'
 
+export const Home = () => {
+  const navigate = useNavigate();
+  const {t}  = useTranslation();
   return (
-    <div>
-      <Button onClick={()=> navigate('/dashboard')} label='Login' />
+    <div className='center'>
+      <p>{t("title.he")}</p>
+      <Button  onClick={()=> navigate('/dashboard')}>
+        {t("button.he")}
+      </Button>
     </div>
   )
 }

@@ -35,3 +35,31 @@ td, th {
   tr:nth-child(even) {
     background-color: #dddddd;
   }
+  .floating-menu{
+    position: absolute;
+    right: 0;
+    margin: 9px;
+    font-size: 13px;
+    line-height: 2;
+    color: white;
+    text-transform: capitalize;
+    outline: none;
+    border-radius: 15px;
+    height: 3rem !important;
+    height: -moz-fit-content;
+    height: fit-content;
+    z-index: 1000;
+    bottom: 0;
+    width: 3rem;
+  }
+
+  .p-speeddial-button.p-button.p-button-icon-only {
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+}
+
+.notification-badge{
+    z-index: 100000;
+    position: relative;
+    background: red;
+}

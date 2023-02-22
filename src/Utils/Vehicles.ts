@@ -1,6 +1,6 @@
 // 32.0859711111
 // 34.8963733333
-export const vehiclesTest = [
+export const vehiclesTestw = [
     
         {
             "accStatus": 1,
@@ -10126,3 +10126,86 @@ export const vehiclesTest = [
         }
     
 ]
+
+export const vehiclesTest=[
+    {
+      "alarm": "",
+      "altitude": 0,
+      "dir": 0,
+      "exData": "",
+      "imei": "359510088161794",
+      "isStop": false,
+      "lat": 32.104733,
+      "latc": 32.104733,
+      "lon": 34.894828,
+      "lonc": 34.894828,
+      "mileage": 0,
+      "pointDt": "2023-02-14 03:25:00",
+      "pointType": 1,
+      "remark": "dt=2023-02-14 09:24:59;",
+      "signalMile": 0,
+      "speed": 0,
+      "status": "",
+      "stopTime": 0
+    },
+    {
+      "alarm": "",
+      "altitude": 0,
+      "dir": 86,
+      "exData": "",
+      "imei": "359510088161794",
+      "isStop": true,
+      "lat": 32.104678,
+      "latc": 32.104678,
+      "lon": 34.894766,
+      "lonc": 34.894766,
+      "mileage": 0,
+      "pointDt": "2023-02-14 09:29:40",
+      "pointType": 1,
+      "remark": "dt=2023-02-14 15:29:41;",
+      "signalMile": 0,
+      "speed": 0,
+      "status": "",
+      "stopTime": 21889
+    },
+    {
+      "alarm": "",
+      "altitude": 0,
+      "dir": 342,
+      "exData": "power=100;terminalChargingStatus=0",
+      "imei": "359510088161794",
+      "isStop": false,
+      "lat": 32.105013,
+      "latc": 32.105013,
+      "lon": 34.894827,
+      "lonc": 34.894827,
+      "mileage": 38,
+      "pointDt": "2023-02-14 09:29:49",
+      "pointType": 1,
+      "remark": "dt=2023-02-14 09:29:50;",
+      "signalMile": 38,
+      "speed": 11,
+      "status": "",
+      "stopTime": 9
+    },
+    {
+      "alarm": "",
+      "altitude": 0,
+      "dir": 170,
+      "exData": "power=1;terminalChargingStatus=0",
+      "imei": "359510088161794",
+      "isStop": true,
+      "lat": 32.104139,
+      "latc": 32.104139,
+      "lon": 34.894497,
+      "lonc": 34.894497,
+      "mileage": 76,
+      "pointDt": "2023-02-14 21:30:24",
+      "pointType": 1,
+      "remark": "dt=2023-02-15 03:30:24;",
+      "signalMile": 38,
+      "speed": 0,
+      "status": "",
+      "stopTime": 43235
+    }
+  ]

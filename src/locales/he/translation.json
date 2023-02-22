@@ -1,0 +1,19 @@
+{
+    "greeting": {
+      "en": "Hello",
+      "he": "שלום"
+    },
+    "description": {
+      "en": "This is a sample description.",
+      "he": "זו היא תיאור דוגמה."
+    },
+    "button": {
+      "en": "log in",
+      "he": "התחברות"
+    },
+    "title":{
+        "en":"telematics",
+        "he":"טלמטיקה"
+    }
+}
+  
