@@ -55,7 +55,7 @@ const MapWrapper = (props:any)=> {
   },[mapRef]) 
   return (
    <>
-    <MenuItems  />
+    <MenuItems setShowAlerts={props.setShowAlerts} />
     <Map 
       ref={mapRef}
       initialViewState={viewpoint}
