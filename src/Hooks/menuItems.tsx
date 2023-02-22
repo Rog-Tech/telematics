@@ -3,6 +3,7 @@ import React, { useRef } from 'react'
 import { SpeedDial } from 'primereact/speeddial';
 import { MenuItem } from 'primereact/menuitem';
 import { Badge } from 'primereact/badge';
+
 export const MenuItems = (props:any) => {
     const toast = useRef<Toast>(null);
     const items: MenuItem[] = [
@@ -10,7 +11,7 @@ export const MenuItems = (props:any) => {
             label: 'Add',
             icon: 'pi pi-bell',
             command: () => {
-                // toast.current.show({ severity: 'info', summary: 'Add', detail: 'Data Added' });
+                props.setShowAlerts(true)
             }
         },
        

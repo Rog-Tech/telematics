@@ -216,7 +216,9 @@ const Notifications = (props:any) => {
   const [notification,setNotification] = React.useState<CarAlarmProps>()
   const [switchModalContent,setswitchModalContent]= React.useState(true)
   const [newAlarms,setNewAlarms] = React.useState(Array<CarAlarmProps>())
+
   React.useEffect(()=>{
+      // To Do  change this to dynamic car id 
       axios.get(getFullUrl(`/api/v1/gps/alarmsByCar?carId=${1356089}`),{
         headers:{
           'Authorization': `Basic ${Token}`
