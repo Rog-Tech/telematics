@@ -36,3 +36,27 @@
     transform: rotate(360deg);
   }
 }
+
+
+/* test remove */
+.center {
+  margin: auto;
+  width: 50%;
+  border: 3px solid #f4f9f4;
+  padding: 10px;
+}
+
+/* canvas{
+  height: 270px !important;
+  width: auto !important;
+} */
+.charts-container{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  flex-direction: row-reverse;
+  padding: 35px;
+}
+.flex{
+  display: block !important;
+}

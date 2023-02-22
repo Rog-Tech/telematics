@@ -7,6 +7,8 @@ body {
   -moz-osx-font-smoothing: grayscale;
   overflow-y: hidden;
   overflow-x: hidden;
+  /* handle hebrew translation */
+  text-align: right; 
 }
 
 code {
@@ -16,4 +18,11 @@ code {
 #map {
   width: 100vw;
   height: 100vh;
+}
+html{
+  /* direction: rtl; handle hebrew translation */
+}
+.flex {
+  display: block;
+  /* flex-wrap: nowrap; */
 }
