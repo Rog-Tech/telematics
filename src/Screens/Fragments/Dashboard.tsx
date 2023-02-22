@@ -78,6 +78,7 @@ export const Dashboard = (props:any) => {
                             notifications = {props.notifications}
                             messages = {props.showMessages}
                             monitoring = {props.monitoring}
+                           
                             />
                     </SplitterPanel>
                 </Splitter>
@@ -214,9 +215,7 @@ const Notifications = (props:any) => {
   const [searchTerm, setSearchTerm] = React.useState("");
   const [filtered,setFiltered] = React.useState(Array<CarAlarmProps>())
   const [notification,setNotification] = React.useState<CarAlarmProps>()
-  const [switchModalContent,setswitchModalContent]= React.useState(true)
-  const [newAlarms,setNewAlarms] = React.useState(Array<CarAlarmProps>())
-
+ 
   React.useEffect(()=>{
       // To Do  change this to dynamic car id 
       axios.get(getFullUrl(`/api/v1/gps/alarmsByCar?carId=${1356089}`),{
@@ -226,7 +225,7 @@ const Notifications = (props:any) => {
       }).then((res)=>{
           const x = res.data as Array<CarAlarmProps>
           const newNotifications = x.filter((n)=> n.isNew === true )
-          setNewAlarms(newNotifications)
+         
           setAlarms(x)
 
         const uniqueItems = x.filter((item, index, self) =>
@@ -248,6 +247,7 @@ const Notifications = (props:any) => {
 
   React.useEffect(()=>{
     props.setUnitId(selectedUnit)
+    // props.showAlerts(switchModalContent)
   },[selectedUnit])
 
   const Search = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -307,15 +307,11 @@ const Notifications = (props:any) => {
   return (
    <>
     <Dialog header="Send Notification" visible={show} style={{ width: '35vw' }} onHide={() => setShow(false)}>
-       {switchModalContent ? <>
-        <div className="share">
+    <div className="share">
             <label className='labels'>Phone Number</label>
             <InputText className='input' value={phone}  onChange={(e)=>setPhone(e.target.value)} placeholder="+ country code e.g +254700000"/>
        </div>
       <Button disabled={!canSend} className='button' onClick={sendNotification} icon="pi pi-send" label='Send'/>
-       </> : 
-       <RenderNotifications Alarms={newAlarms}/>
-       }
    </Dialog>
    <Tooltip target=".custom-target-icon"  />
    <div className='monitor-search-icons'>
@@ -386,25 +382,5 @@ const Notifications = (props:any) => {
    
    </table>
    </>
-  )
-}
-
-
-type AlarmProps ={
-  Alarms:Array<CarAlarmProps>
-}
-const RenderNotifications:FunctionComponent<AlarmProps> = ({Alarms}) => {
-  return (
-    <div>
-        {
-          Alarms.map((x,i)=>
-          
-          <div key={i} className= 'notification-popups'>
-            <p>{x.machineName}</p>
-            <p>{x.alarDescription}</p>
-            <i className="pi pi-spin pi-trash" style={{ fontSize: '2rem' }}></i>
-          </div>)
-        }
-    </div>
   )
 }

@@ -51,9 +51,11 @@
 }
 .custom-target-icon{
     cursor: pointer;
+    height: 1.5rem;
 }
 .img-icons{
     height: 1rem;
+    margin-top: 10px;
 }
 
 .notifications-options{
@@ -98,10 +100,15 @@
     font-weight: 400;
 }
 .p-dialog .p-dialog-header {
-    background: #575a5c !important;}
+    background: #36658a !important;
+}
 
 .notification-popups{
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
+    align-items: center;
+}
+.notification-popups > p,i {
+    margin: 10px;
 }
 
