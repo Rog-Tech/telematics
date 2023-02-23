@@ -28,7 +28,6 @@ export const Home = () => {
           <label>סיסמה</label><br></br>
           <input id="password" type="password"  />
           <Button onClick={() => navigate("/dashboard")} label="כניסה" />
-          
       </div>
     </div>
     </div>
