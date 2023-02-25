@@ -11,7 +11,13 @@ import { CarProps } from '../../types/Types';
 import { MenuItems } from '../../Hooks/menuItems';
 import mapboxgl from 'mapbox-gl';
 // import { setRTLTextPlugin } from 'mapbox-gl-rtl-text';
+//  Mapbox bug - https://stackoverflow.com/questions/65434964/mapbox-blank-map-react-map-gl-reactjs
 
+// The following is required to stop "npm build" from transpiling mapbox code.
+// notice the exclamation point in the import.
+// @ts-ignore
+// eslint-disable-next-line import/no-webpack-loader-syntax, import/no-unresolved
+mapboxgl.workerClass = require('worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker').default;
 
 const initialViewPoint = {
     latitude: 32.104139,
@@ -40,19 +46,6 @@ const MapWrapper = (props:any)=> {
   const onPopupClose = ()=>{
     setPopupContent(null)
   } 
-
-  React.useEffect(()=>{
-    // let language:string = "fe"
-    // if (mapRef && mapRef.current) {
-    //   const map =  mapRef.current.getMap();
-    //   map.setLayoutProperty('country-label','text-field',[
-    //       'get',
-    //       `name_${language}`
-    //   ])
-    //   // new mapboxgl.setRTLTextPlugin(map)
-    //   // map.addControl(new mapboxgl.setRTLTextPlugin('https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-rtl-text/v0.2.0/mapbox-gl-rtl-text.js'));
-    // }
-  },[mapRef]) 
   return (
    <>
     <MenuItems setShowAlerts={props.setShowAlerts} />
@@ -108,7 +101,7 @@ const MapWrapper = (props:any)=> {
                       <th>Sensor values:</th>
                     </tr>
                       <tr>
-                    <td>{}</td>
+                    <td>{popupContent.alarm}</td>
                     <td>{}</td>
                     <td>{}</td>
                   </tr>
@@ -122,16 +115,11 @@ const MapWrapper = (props:any)=> {
     <div style={{ position: 'absolute', right: 0 }}>
         <NavigationControl />
     </div>
-    {/* <Button icon="pi pi-arrow-right" onClick={() => setVisible(true)} /> */}
-    {props.showTracks &&( <Tracks car={vehiclesTest} animation={play}/>)}
+    {props.showTracks &&( <Tracks car={props.tracks} 
+            animation={play} speed={props.speed} time={props.time}/>)}
+
     {props.data &&<CarMarkers setPopupContent = {setPopupContent} 
         vehicles={props.data}/>}
-    
-    {/* {props.notifications && (<CarMarkers setPopupContent = {setPopupContent} 
-        vehicles={props.data}/>)}
-    {props.messages &&(<CarMarkers setPopupContent = {setPopupContent} 
-        vehicles={props.data}/>)}
-    {} */}
     </Map>
    </>
   )

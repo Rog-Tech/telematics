@@ -11,17 +11,30 @@ import { Divider } from 'primereact/divider'
 import { Checkbox } from "primereact/checkbox";
 import axios from 'axios'
 import { Buffer } from 'buffer'
-import { getFullUrl } from '../../Utils/Helper';
+import { DateFormatOptions, getFullUrl } from '../../Utils/Helper';
 import carSmall from '../../assets/carSmall.png'
 import batteryStatus from '../../assets/batteryStatus.svg'
 import { Tooltip } from 'primereact/tooltip';
-import { CarAlarmProps, CarProps, SearchParamsDto } from '../../types/Types'
+import { CarAlarmProps, CarHistoryProps, CarProps, SearchParamsDto } from '../../types/Types'
 import { Button } from 'primereact/button'
 import { Token } from '../../Utils/constants'
 import { Dialog } from 'primereact/dialog';
 import GrowlContext from '../../Utils/growlContext'
+import { InputNumber, InputNumberValueChangeEvent } from 'primereact/inputnumber';
+import { type } from 'os'
 interface CarDto {
   car:Array<CarProps>
+}
+interface DateTimeFormatOptions {
+  year?: 'numeric' | '2-digit';
+  month?: 'numeric' | '2-digit' | 'narrow' | 'short' | 'long';
+  day?: 'numeric' | '2-digit';
+  hour?: 'numeric' | '2-digit';
+  minute?: 'numeric' | '2-digit';
+  second?: 'numeric' | '2-digit';
+  timeZoneName?: 'short' | 'long';
+  hour12?: boolean;
+  timeZone?: string;
 }
 
 export const Dashboard = (props:any) => {
@@ -29,7 +42,10 @@ export const Dashboard = (props:any) => {
   const[showMessages,setMessages] = React.useState(props.msg)
   const [playTrack, setPlay] = React.useState(false);
   const [data,setData] = React.useState(Array<CarProps>());
+  const [tracks,setTracks] = React.useState(Array<CarHistoryProps>());
   const [unitId,setUnitId] = React.useState("")
+  const [time,setTime] = React.useState<number>(3)
+  const [speed,setSpeed] = React.useState("1");
 
   React.useEffect(() => {
     const interval = setInterval(async () => {
@@ -51,6 +67,29 @@ export const Dashboard = (props:any) => {
     return () => clearInterval(interval);
   }, []);
 
+  React.useEffect(() => {
+    console.log(time)
+    const today = new Date();
+    const pastDate = new Date(today.getTime() - time * 24 * 60 * 60 * 1000)
+    axios.post(getFullUrl('/api/v1/gps/carHistory'),{
+      carId:1356089,
+      startTime:pastDate.toISOString().slice(0, 19).replace('T', ' '),
+      endTime:today.toISOString().slice(0, 19).replace('T', ' ')
+    },{
+      headers:{
+        'Authorization': `Basic ${Token}`
+      }
+    }).then((res)=>{
+        const d = res.data as Array<CarHistoryProps>
+        // const filteredArray = myArray.filter(
+        //   (item) => item.date >= threeDaysAgo && item.date <= today
+        // );
+        setTracks(d)
+    }).catch((error)=>{
+      console.log(error)
+    })
+  }, []);
+
   React.useEffect(()=>{
     setShowTracks(props.tracks)
     setMessages(props.msg)
@@ -65,7 +104,8 @@ export const Dashboard = (props:any) => {
             <SplitterPanel size={100}>
                 <Splitter>
                     <SplitterPanel size={30}>
-                       {showTracks &&(<TracksScreen setPlay={setPlay} setUnitId={setUnitId}/>)}
+                       {showTracks &&(<TracksScreen setPlay={setPlay} setTime={setTime} setSpeed={setSpeed}
+                            setUnitId={setUnitId} data={tracks}/>)}
                        {showMessages && (<MessageScreen />)}
                        {props.monitoring && (<MonitorControl car={data} />)}
                        {props.notifications && (<Notifications setUnitId={setUnitId} />)}
@@ -75,10 +115,12 @@ export const Dashboard = (props:any) => {
                             playTrack = {playTrack}
                             showTracks = {showTracks}
                             data = {data}
+                            tracks = {tracks}
                             notifications = {props.notifications}
                             messages = {props.showMessages}
                             monitoring = {props.monitoring}
-                           
+                            speed={speed}
+                            time = {time}
                             />
                     </SplitterPanel>
                 </Splitter>
@@ -90,27 +132,61 @@ export const Dashboard = (props:any) => {
   )
 }
 
+type SelectedUnit = {
+  name:string;
+  code:string
+}
 
 
 const TracksScreen = (props:any) => {
-  const [selectedCar] = React.useState(null);
-  
-  const countries = [
+  const [selectedCar,setSelectedUnit] = React.useState<SelectedUnit>();
+  const [checked, setChecked] = React.useState<boolean>(true);
+  const [speed,setSpeed] = React.useState("1");
+  const [time,setTime] = React.useState<number>(3)
+  const countries:SelectedUnit[] = [
     { name: "359510088161794", code: '359510088161794' },
-];
+  ];
+  React.useEffect(()=>{
+    props.setUnitId(selectedCar?.name)
+    props.setSpeed(speed)
+    props.setTime(time)  
+  },[selectedCar,time,speed])
   return (
    <>
     <div className='tracks-container'>
-      <label className='tracks-label'>Unit ID</label>
-      <Dropdown className='tracks-dropdown' value={selectedCar} onChange={(e) => props.setUnitId(e.value)} options={countries} optionLabel="name" placeholder="Select a vehicle" 
+          <Dropdown className='tracks-dropdown' value={selectedCar} onChange={(e) => setSelectedUnit(e.value)} options={countries} optionLabel="name" placeholder="בחר רכב" 
         filter   />
-      
     </div>
-    <div className='show-tracks'>
-      <i onClick={()=>props.setPlay(true) } className="pi pi-play" style={{ color: 'slateblue' }}></i>
-      <i onClick={()=>props.setPlay(false) }className="pi pi-pause" style={{ color: 'green' }}></i>
+    <div className="card flex justify-content-center button-set">
+        <span className="p-buttonset">
+            <Button onClick={()=>setTime(3)} label="3 Days a go"  />
+            <Button onClick={()=>setTime(7)} label="7 Days a go"  />
+            <Button onClick={()=>setTime(0)} label="Today"  />
+        </span>
     </div>
-   
+    <Divider />
+    <div className='tracks-container'>
+      <label className='tracks-label'>שם יחידה</label>
+      <InputText value={selectedCar?.name} readOnly className='tracks-input'/>
+    </div>
+    <div className='tracks-container'>
+      <label className='tracks-label'>צֶבַע</label>
+      <InputText value='By trips' readOnly  className='tracks-input'/>
+    </div>
+    <div className='tracks-container'>
+      <label className='tracks-label'>קבע מהירות</label>
+      {/* <InputNumber className='tracks-input' inputId="integeronly" value={speed} onValueChange={(e: InputNumberValueChangeEvent) => setSpeed(e.value)} /> */}
+      <InputText value={speed} className="tracks-input" onChange={(e)=>setSpeed(e.target.value)}  placeholder='מְהִירוּת'/>
+    </div>
+    <Divider />
+      {selectedCar?.name && (
+         <div className='icons-tracks'>
+         <p>{selectedCar?.name}</p>
+           <Checkbox onChange={e => setChecked(e.value)} checked={checked}></Checkbox>
+           <i onClick={()=>props.setPlay(true) } className="pi pi-play" style={{ color: 'slateblue' }}></i>
+           <i onClick={()=>props.setPlay(false) }className="pi pi-pause" style={{ color: 'green' }}></i>
+       </div>
+    )}
    </>
   )
 }
@@ -123,28 +199,26 @@ const MessageScreen = (props:any) => {
   return (
    <>
     <div className='tracks-container'>
-      <label className='tracks-label'>Unit Id</label>
-      <Dropdown className='tracks-dropdown' value={selectedCar} onChange={(e) => setselectedCar(e.value)} options={countries} optionLabel="name" placeholder="Select a vehicle" 
+      <label className='tracks-label'>מספר מכשיר</label>
+      <Dropdown className='tracks-dropdown' value={selectedCar} onChange={(e) => setselectedCar(e.value)} options={countries} optionLabel="name" placeholder="בחירת מכשיר" 
     filter   />
       
     </div>
-    
-
     <div className='tracks-container'>
-      <label className='tracks-label'>Unit Name</label>
+      <label className='tracks-label'>שם יחידה</label>
       <InputText value='cgch253536' readOnly />
     </div>
     <div className='tracks-container'>
-      <label className='tracks-label'>Message Type</label>
+      <label className='tracks-label'>סוג הודעה</label>
       <InputText value='cgch253536' readOnly />
     </div>
     <Divider />
     <Panel header="Summary" toggleable>
-        <p className="m-0 tracks-label">Total Messages:</p>
-        <p className="m-0 tracks-label">Total Time:</p>
-        <p className="m-0 tracks-label">Distance:</p>
-        <p className="m-0 tracks-label">Average Speed:</p>
-        <p className="m-0 tracks-label">Top Speed:</p>
+        <p className="m-0 tracks-label">:סה"כ הודעות</p>
+        <p className="m-0 tracks-label">:סה"כ זמן</p>
+        <p className="m-0 tracks-label">:מרחק</p>
+        <p className="m-0 tracks-label">מהירות ממוצעת:</p>
+        <p className="m-0 tracks-label">מהירות מירבית:</p>
     </Panel>
    </>
   )
@@ -177,7 +251,7 @@ const MonitorControl:FunctionComponent<CarDto> = ({car}) => {
    <Tooltip target=".custom-target-icon"  />
     <div className='tracks-container'>
       <div className='tracks-container'>
-        <InputText className='monitor-search-term' value={searchTerm} onChange={handleSearch}  placeholder='Search by imei or ..'/>
+        <InputText className='monitor-search-term' value={searchTerm} onChange={handleSearch}  placeholder='חיפוש לפי מספר מכשיר'/>
       </div>
     </div>
     <Divider />
@@ -187,16 +261,16 @@ const MonitorControl:FunctionComponent<CarDto> = ({car}) => {
       <Checkbox onChange={()=>handleDisplay} checked={checked}></Checkbox>
       <img src={carSmall} alt="" className='custom-target-icon' data-pr-tooltip={r.exData} />
       {r.carId}
-      <i  data-pr-tooltip="Track unit on the map" 
+      <i  data-pr-tooltip="מציאת היחידה במפה" 
              className="pi pi-map-marker custom-target-icon" style={{ color: 'green' }}></i>
       <i  className="pi pi-play custom-target-icon" style={{ color: 'slateblue' }}></i>
       <i className="pi pi-pause custom-target-icon" style={{ color: 'green' }}></i>
       <i className="pi pi-info-circle custom-target-icon" 
-          style={{ color: 'green' }}  data-pr-tooltip="Status is unknown"  ></i>
+          style={{ color: 'green' }}  data-pr-tooltip="סטטוס לא ידוע"  ></i>
       <img src={batteryStatus} alt="" 
           className='custom-target-icon img-icons' 
             data-pr-tooltip={r.exData} />
-      <i data-pr-tooltip="The unit is online" className="pi pi-wifi custom-target-icon" style={{ color: 'green' }}></i>
+      <i data-pr-tooltip="היחידה מופעלת" className="pi pi-wifi custom-target-icon" style={{ color: 'green' }}></i>
     </div>
     )}
    </>
@@ -308,27 +382,28 @@ const Notifications = (props:any) => {
    <>
     <Dialog header="Send Notification" visible={show} style={{ width: '35vw' }} onHide={() => setShow(false)}>
     <div className="share">
-            <label className='labels'>Phone Number</label>
+            <label className='labels'>מספר טלפון</label>
             <InputText className='input' value={phone}  onChange={(e)=>setPhone(e.target.value)} placeholder="+ country code e.g +254700000"/>
        </div>
       <Button disabled={!canSend} className='button' onClick={sendNotification} icon="pi pi-send" label='Send'/>
    </Dialog>
    <Tooltip target=".custom-target-icon"  />
    <div className='monitor-search-icons'>
-    <Button label='New' />
+    <Button label='חדש' />
     {/* <Dropdown value={selectedUnit} placeholder='All' 
        onChange={(e: DropdownChangeEvent) => setSelectedUnit(e.value)} 
       options={options} optionLabel="name" /> */}
     <span className="p-input-icon-left">
         <i className="pi pi-search" />
-        <InputText placeholder="Search" value={searchTerm} onChange={Search}/>
+        <InputText placeholder="חיפוש" value={searchTerm} onChange={Search}/>
     </span>
    </div>
    <table className='table'>
    <Tooltip target=".custom-target-icon"  />
     <tr>
+      
       <th>
-       Description
+       תיאור
       </th>
       <th>
         <i data-pr-tooltip="Disable notifications" 

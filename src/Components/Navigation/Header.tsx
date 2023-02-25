@@ -5,7 +5,7 @@ import './Header.css'
 import logo from '../../assets/logo.png'
 import CompanyLogo from '../../assets/CompanyLogo.png'
 const Header = (props:any) => {
-  const [activeDiv, setActiveDiv] = React.useState<number | null>(2);
+  const [activeDiv, setActiveDiv] = React.useState<number | null>(5);
   const setSelectedTab = (type: "Monitoring" | "Messages" | "Tracks" | "Geofence" | "Notifications") =>{
     switch (type) {
       case "Monitoring":
@@ -52,32 +52,32 @@ const Header = (props:any) => {
                   <div  onClick={() => setActiveDiv(1)} className= {activeDiv ===1 ? "header-items active-links" : "header-items"} >
                     <NavLink to='/analytics' >
                       <i className="pi pi-chart-bar"  style={{'fontSize': '0.8rem', marginRight:"10px"}}></i>
-                      Analytics</NavLink>
+                      לוח בקרה</NavLink>
                   </div>
                   <div className= {activeDiv ===2 ? "header-items active-links" : "header-items"}>
                     <NavLink to='/dashboard' onClick={()=> setSelectedTab("Monitoring")}>
                         <i className="pi pi-globe" style={{'fontSize': '0.8rem', marginRight:"10px"}}></i>
-                        Monitoring</NavLink>
+                        מעקב חי</NavLink>
                   </div>
                   <div className= {activeDiv ===3 ? "header-items active-links" : "header-items"}>
                      <NavLink onClick={()=>setSelectedTab("Messages")} to='/dashboard' >
                         <i className="pi pi-comments" style={{'fontSize': '0.8rem', marginRight:"10px"}}></i>
-                          Messages</NavLink>
+                          הודעות</NavLink>
                    </div>
                    <div className= {activeDiv ===4 ? "header-items active-links" : "header-items"}>
                       <NavLink onClick={()=>setSelectedTab("Tracks")} to='/dashboard'>
                        <i className="pi pi-flag-fill" style={{'fontSize': '0.8rem', marginRight:"10px"}}></i>
-                       Tracks</NavLink>
+                       מסלולים</NavLink>
                     </div>
-                    <div className='header-items'>
+                    {/* <div className='header-items'>
                       <NavLink to='/dashboard'>
                         <i className="pi pi-map" style={{'fontSize': '0.8rem', marginRight:"10px"}}></i>
-                       Geofence</NavLink>
-                    </div>
+                       גדרות גיאוגרפיות</NavLink>
+                    </div> */}
                     <div className= {activeDiv ===5 ? "header-items active-links" : "header-items"}>
                       <NavLink onClick={()=>setSelectedTab("Notifications")} to='/dashboard' >
                         <i className="pi pi-bell" style={{'fontSize': '0.8rem', marginRight:"10px"}}></i>
-                       Notifications</NavLink>
+                       התרעות</NavLink>
                     </div>
               </div>
           </div>

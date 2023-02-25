@@ -45,6 +45,8 @@ export interface CarProps {
   export interface CarDto {
     car:Array<CarHistoryProps>
     animation:boolean
+    speed:string
+    time:number
   }
   export interface CarMarkerProps{
       lat: number;
@@ -54,6 +56,8 @@ export interface CarProps {
   export interface CarAnimationProps {
     locationData: Array<CarHistoryProps>;
     showTrack: boolean
+    speed:string
+    timeline : number
   }
   export interface LatLng {
     lat: number;
