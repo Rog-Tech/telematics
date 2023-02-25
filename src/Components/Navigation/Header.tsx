@@ -5,7 +5,7 @@ import './Header.css'
 import logo from '../../assets/logo.png'
 import CompanyLogo from '../../assets/CompanyLogo.png'
 const Header = (props:any) => {
-  const [activeDiv, setActiveDiv] = React.useState<number | null>(2);
+  const [activeDiv, setActiveDiv] = React.useState<number | null>(5);
   const setSelectedTab = (type: "Monitoring" | "Messages" | "Tracks" | "Geofence" | "Notifications") =>{
     switch (type) {
       case "Monitoring":
@@ -69,11 +69,11 @@ const Header = (props:any) => {
                        <i className="pi pi-flag-fill" style={{'fontSize': '0.8rem', marginRight:"10px"}}></i>
                        מסלולים</NavLink>
                     </div>
-                    <div className='header-items'>
+                    {/* <div className='header-items'>
                       <NavLink to='/dashboard'>
                         <i className="pi pi-map" style={{'fontSize': '0.8rem', marginRight:"10px"}}></i>
                        גדרות גיאוגרפיות</NavLink>
-                    </div>
+                    </div> */}
                     <div className= {activeDiv ===5 ? "header-items active-links" : "header-items"}>
                       <NavLink onClick={()=>setSelectedTab("Notifications")} to='/dashboard' >
                         <i className="pi pi-bell" style={{'fontSize': '0.8rem', marginRight:"10px"}}></i>

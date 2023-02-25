@@ -10,13 +10,13 @@ import {
 } from '../../types/Types';
 
 
-export const Tracks:FC<CarDto> = ({car,animation}) => {
+export const Tracks:FC<CarDto> = ({car,animation,speed,time}) => {
   
   const sortedPoints = car.sort((a, b) => new Date(a.pointDt).getTime() -new Date(b.pointDt).getTime());
   return (
       <>
         <CarPathLine  carPath={sortedPoints}/>
-        <CarAnimation locationData={sortedPoints} showTrack={animation}/>  
+        <CarAnimation locationData={sortedPoints} showTrack={animation} speed={speed} timeline={time}/>  
       </>
   )
 }
@@ -80,7 +80,7 @@ const CarMarker:FC<CarMarkerProps> = ({lat,lng,dir}) => {
   )
 }
 
-function CarAnimation({ locationData,showTrack}: CarAnimationProps) {
+function CarAnimation({ locationData,showTrack,speed,timeline}: CarAnimationProps) {
   const defaultPath : LatLng[]= locationData.map((loc)=> {
     return {lat:loc.lat, lng:loc.lon}
   })

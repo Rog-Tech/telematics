@@ -10,6 +10,7 @@ import { getFullUrl } from '../Utils/Helper';
 import { Token } from '../Utils/constants';
 import { Tooltip } from 'primereact/tooltip';
 import { Divider } from 'primereact/divider';
+import GrowlContext from '../Utils/growlContext';
 
 type AlarmProps ={
     Alarms:Array<CarAlarmProps>
@@ -62,11 +63,6 @@ export const MenuItems = (props:any) => {
             }
         }
     ];
-
-    const  template =()=> <div>
-        <img src='' alt=''/>
-        <p>Unit : 1356089</p>
-    </div>
     return (
         <>
         <Dialog header="New alert - Unit : 1356089" visible={showAlerts} style={{ width: '48vw' }} onHide={() => setShowAlerts(false)}>
@@ -82,6 +78,27 @@ export const MenuItems = (props:any) => {
 }
 
 const RenderNotifications:FunctionComponent<AlarmProps> = ({Alarms}) => {
+    const growl = React.useContext(GrowlContext)
+
+    const deleteNotification = (alarm:string)=>{
+        // /api/v1/gps/markAlarmAsRead?alarmId=70ab03a6-b466-42de-ba1b-bfaedc8c4d84
+        axios.post(getFullUrl(`/api/v1/gps/markAlarmAsRead?alarmId=${alarm}`),{},{
+          headers: {
+            'Authorization': `Basic ${Token}` 
+          }
+        }).then((res)=>{
+            growl.current.show({
+              severity:"success",
+              summary: `Notification deleted`
+            })
+           
+        }).catch((error)=>{
+          growl.current.show({
+            severity:"error",
+            summary: `Error unable  delete the notification`
+          })
+        })
+    }
     return (
       <div>
         <Tooltip target=".custom-target-icon"  />
@@ -94,10 +111,10 @@ const RenderNotifications:FunctionComponent<AlarmProps> = ({Alarms}) => {
               <p  data-pr-tooltip="Unit name"  className='custom-target-icon'>{x.machineName}</p>
              
               <p  data-pr-tooltip="Alert"  className='custom-target-icon'>{x.alarDescription}</p>
-              <i data-pr-tooltip="Mark as read" 
+              <i data-pr-tooltip="Mark as read"  onClick={()=>deleteNotification(x.alarmId)}
                      className="pi pi-thumbs-up custom-target-icon" style={{ fontSize: '1rem',color:"green" }}></i>
-              <i data-pr-tooltip="Delete Notification" 
-                     className="pi pi-trash custom-target-icon" style={{ fontSize: '1rem',color:"red" }}></i>
+              {/* <i data-pr-tooltip="Delete Notification" 
+                     className="pi pi-trash custom-target-icon" style={{ fontSize: '1rem',color:"red" }}></i> */}
             </div>
             <Divider />
             </>
