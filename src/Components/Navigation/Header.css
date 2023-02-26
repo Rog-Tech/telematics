@@ -44,12 +44,15 @@
     display: flex;
  }
  .header-eclipse{
-    color: #e7dcdc;
-    font-size: 2.1rem;
-    margin: auto;
+   color: #e7dcdc;
+   margin: auto;
+   background: blue;
+   padding: 5px;
+   margin: 1px;
+   font-weight: 800;
  }
  .header-logo{
-      width: 5rem;
+    width: 5rem;
     margin: 3px;
     position: absolute;
     left: 0;
@@ -60,6 +63,4 @@
    /* justify-content: center; */
    height: 3.4rem;
  }
- .top-bar{
-   border-bottom: 1px solid rgb(186, 186, 186);
- }
+

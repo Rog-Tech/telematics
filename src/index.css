@@ -19,10 +19,3 @@ code {
   width: 100vw;
   height: 100vh;
 }
-html{
-  /* direction: rtl; handle hebrew translation */
-}
-.flex {
-  display: block;
-  /* flex-wrap: nowrap; */
-}

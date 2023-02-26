@@ -1,21 +1,43 @@
-import React from "react";
 
 import { Button } from "primereact/button";
-import { useLocation, useNavigate } from "react-router-dom";
-
+import { useNavigate } from "react-router-dom";
+import styled from "styled-components";
 import "./Home.css";
+const StyledUl = styled.ul`
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #e9edf4b7;
+
+    li{
+      float: left;
+      a{
+        display: block;
+        color: rgb(3, 3, 3);
+        text-align: center;
+        padding: 14px 16px;
+        text-decoration: none;
+
+        &:hover{
+          background-color: #007ad9;
+        }
+      }
+    }
+
+`
 export const Home = () => {
   const navigate = useNavigate();
 
   return (
     <div>
       <nav className="navbar">
-        <ul>
+        <StyledUl>
           <li><a href="#home">דף בת</a></li>
           <li><a href="#news">אודות</a></li>
           <li><a href="#contact">צרו קשר</a></li>
           <li style={{float:"right"}}></li>
-        </ul>
+        </StyledUl>
       </nav>
     <div className="container">
       <video className="fullscreen" id="background-video" autoPlay loop muted>

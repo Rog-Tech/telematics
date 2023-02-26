@@ -4,7 +4,6 @@ import Car  from '../../assets/L_9.png'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import './MapWrapper.css'
 import './fonts.css'
-import { vehiclesTest } from '../../Utils/Vehicles';
 import { Divider } from 'primereact/divider';
 import { Tracks } from '../../Screens/Fragments/Tracks';
 import { CarProps } from '../../types/Types';

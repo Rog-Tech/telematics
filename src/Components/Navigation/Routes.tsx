@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { BreadCrumb } from 'primereact/breadcrumb'
 import { Divider } from 'primereact/divider'
 import { Splitter, SplitterPanel } from 'primereact/splitter'
 import React from 'react'
@@ -13,6 +14,8 @@ import { Token } from '../../Utils/constants'
 import { getFullUrl } from '../../Utils/Helper'
 import MapWrapper from '../Map/MapWrapper'
 import Header from './Header'
+import NavBar from './nav/NavBar'
+import './Header.css'
 
 const BaseRouter = () => {
   const [tracks,setTracks] = React.useState(false);
@@ -41,29 +44,63 @@ const BaseRouter = () => {
   }, []);
   // pull the dataset here
   return (
-    <div className='grid grid-nogutter'>
-      <div className='col-12 md:col-6 lg:col-12 top-bar'>
-          <Header 
+    <>
+      <NavBar  
             setTracks={setTracks} 
             setMsg={setMsg} 
             setmonitoring={setMonitoring}
             setNotifications={setNotifications}
-            />
-      </div>
-
-      <div className="col-12 md:col-6 lg:col-12">
-          <Routes>
+      />
+      <div>
+        <Routes>
             <Route path='/dashboard' element={
-              <Dashboard 
-                  tracks={tracks} 
-                  msg={msg} 
-                  monitoring={monitoring}
-                  notifications = {notifications}
-                  /> } />
+            <Dashboard 
+              tracks={tracks} 
+              msg={msg} 
+              monitoring={monitoring}
+              notifications = {notifications}
+            /> } />
             <Route path='/analytics' element={<Analytics data={data}/> } />
-          </Routes>
+        </Routes>
       </div>
-    </div>
+    </>
+    // <div>
+    //   <div className="top-bar">
+    //     {/* <Header 
+    //          setTracks={setTracks} 
+    //          setMsg={setMsg} 
+    //         setmonitoring={setMonitoring}
+    //         setNotifications={setNotifications}
+    //     />  */}
+        
+    //   </div>
+    //   <div className="content">
+    //     display content 
+    //   </div>
+    // </div>
+    // <div className='grid grid-nogutter'>
+    //   <div className='col-12 md:col-6 lg:col-12 top-bar'>
+    //       <Header 
+    //         setTracks={setTracks} 
+    //         setMsg={setMsg} 
+    //         setmonitoring={setMonitoring}
+    //         setNotifications={setNotifications}
+    //         />
+    //   </div>
+
+    //   <div className="col-12 md:col-6 lg:col-12">
+    //       <Routes>
+    //         <Route path='/dashboard' element={
+    //           <Dashboard 
+    //               tracks={tracks} 
+    //               msg={msg} 
+    //               monitoring={monitoring}
+    //               notifications = {notifications}
+    //               /> } />
+    //         <Route path='/analytics' element={<Analytics data={data}/> } />
+    //       </Routes>
+    //   </div>
+    // </div>
   )
 }
 

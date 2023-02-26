@@ -24,29 +24,25 @@ video.fullscreen {
     z-index: 1;
   }
   
-  ul {
+  /* ul {
     list-style-type: none;
     margin: 0;
     padding: 0;
     overflow: hidden;
     background-color: #e9edf4b7;
-  }
+  } */
   
-  li {
+  /* li {
     float: left;
-  }
+  } */
   
   li a {
-    display: block;
-    color: rgb(3, 3, 3);
-    text-align: center;
-    padding: 14px 16px;
     text-decoration: none;
   }
   
-  li a:hover:not(.active) {
+  /* li a:hover:not(.active) {
     background-color: #007ad9;
-  }
+  } */
   .card {
     max-height: 350px;
     min-height: 300px;
