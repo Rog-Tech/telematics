@@ -5,25 +5,27 @@ import * as turf from '@turf/turf'
 import { computeDistance, interpolate } from 'react-maps-suite';
 import { 
   CarAnimationProps, CarDto, 
+  ICarMarker, 
   CarMarkerProps, 
-  CarPathLineProps, LatLng, PathWithDistance 
+  CarPathLineProps, CarProps, LatLng, PathWithDistance, CarHistoryProps, IPopupContent 
 } from '../../types/Types';
+import GrowlContext from '../../Utils/growlContext';
 
 
-export const Tracks:FC<CarDto> = ({car,animation,speed,time}) => {
-  
+export const Tracks:FC<CarDto> = ({car,animation,speed,time,setPopupContent}) => {
+  React.useEffect(() => {
+  }, [time])
   const sortedPoints = car.sort((a, b) => new Date(a.pointDt).getTime() -new Date(b.pointDt).getTime());
   return (
       <>
         <CarPathLine  carPath={sortedPoints}/>
-        <CarAnimation locationData={sortedPoints} showTrack={animation} speed={speed} timeline={time}/>  
+        <CarAnimation locationData={sortedPoints} showTrack={animation} speed={speed} timeline={time} setPopupContent={setPopupContent}/>  
       </>
   )
 }
 
 function CarPathLine({ carPath }: CarPathLineProps) {
   const pathData = carPath.map((loc) => [loc.lon, loc.lat]); 
-
   const lineSource : GeoJSON.FeatureCollection<GeoJSON.Geometry>= useMemo(
     () => ({
       type: 'FeatureCollection',
@@ -59,16 +61,26 @@ function CarPathLine({ carPath }: CarPathLineProps) {
   );
 }
 
-const CarMarker:FC<CarMarkerProps> = ({lat,lng,dir}) => {
+
+const CarMarker:FC<CarMarkerProps> = ({lat,lng,dir,setPopupContent}) => {
+
+  const [content,setContent]= React.useState<IPopupContent | null>();
+
+  React.useEffect(()=>{
+    setPopupContent(content)
+  },[content])
+
+
   return (
-        <Marker 
+      <Marker 
         onClick={e => {
         // If we let the click event propagates to the map,
         //  it will immediately close the popup
         // with `closeOnClick: true`
         e.originalEvent.stopPropagation();
         // props.setPopupContent(r)
-        // setContent(r)
+        // setContent(e)
+        console.log(lat,lng,dir)
       }} longitude={lng} latitude={lat}>
       <img 
         src={Car}
@@ -80,11 +92,16 @@ const CarMarker:FC<CarMarkerProps> = ({lat,lng,dir}) => {
   )
 }
 
-function CarAnimation({ locationData,showTrack,speed,timeline}: CarAnimationProps) {
+function CarAnimation({ locationData,showTrack,speed,timeline,setPopupContent}: CarAnimationProps) {
+  const growl = React.useContext(GrowlContext);
   const defaultPath : LatLng[]= locationData.map((loc)=> {
     return {lat:loc.lat, lng:loc.lon}
   })
-  const DEFAULT_SPEED = 2; // m/s
+
+  const unitBeingTracked = locationData.at(0);
+ 
+
+  const DEFAULT_SPEED:number =+speed; // m/s
   const [time, setTime] = useState(0);
   const r: PathWithDistance[] = defaultPath.reduce(
     (result: PathWithDistance[], item: LatLng, index: number, array: LatLng[]) => {
@@ -123,7 +140,24 @@ function CarAnimation({ locationData,showTrack,speed,timeline}: CarAnimationProp
 
   const position = getPositionAt(r, distance);
 
-  return <CarMarker lng={position.lng} lat={position.lat} dir={position.dir}/>;
+  // React.useEffect(() => {
+  //   if(!position){
+  //     growl.current.show({
+  //       summary: "No path history for this unit",
+  //       severity:"info"
+  //     })
+  //   }
+  // }, [position])
+
+  return <>{
+    position && (
+    <CarMarker 
+       lng={position.lng} lat={position.lat} 
+      //  popupTracker= {unitBeingTracked}
+       dir={position.dir} 
+       setPopupContent={setPopupContent}
+      />)
+  }</>;
 }
 
 function getPositionAt(path: any, distance: number) {
@@ -146,17 +180,20 @@ function getPositionAt(path: any, distance: number) {
     (distance - lastPosition.distance) / nextPosition.distance;
   var point1 = turf.point([lastPosition.lng, lastPosition.lat]);
   var point2 = turf.point([nextPosition.lng, nextPosition.lat]);
-    let angle = turf.rhumbBearing(point1, point2);
+  let angle = turf.rhumbBearing(point1, point2);
+
   const currentPosition = interpolate(
     lastPosition,
     nextPosition,
     progressUntilNext
   );
-  const x : CarMarkerProps = {
+
+  const x : ICarMarker = {
     lat:currentPosition.lat,
     lng:currentPosition.lng,
-    dir:angle
+    dir:angle,
   }
+
   return x
 }
 

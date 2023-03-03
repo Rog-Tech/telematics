@@ -10,9 +10,13 @@
 }
 .active-links{
     background: #007ad9a6; 
+    color: black !important;
+    font-weight: 500;
+
  }
  .link{
-     color:#227699;
+   color: black;
+   font-weight: 300;
  }
 
  .header-item-menu{
@@ -23,7 +27,6 @@
  .header-items{
    display: flex;
    height: 3.4rem;
-   width: 100%;
    justify-content: flex-end;
  }.header-items >a {
    color: black;

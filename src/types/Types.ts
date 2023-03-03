@@ -1,25 +1,27 @@
 import React from 'react'
 
 export interface CarProps {
+ accStatus: number,
+    accTime: number,
     carId: number,
-    alarm: string,
-    altitude: number,
     dir: number,
-    exData: string,
-    imei: string,
-    isStop: boolean,
-    lat:number,
+    exData:string,
+    gateType:string,
+    gsmUpdateTime:string,
+    lat: number,
     latc: number,
     lon: number,
     lonc: number,
-    mileage: number,
-    pointDt: string,
+    machineType: number,
+    online: number,
+    orginalSpeed: number,
+    gpsUpdateTime:string,
     pointType: number,
-    remark: string,
-    signalMile: number,
     speed: number,
-    status: string,
-    stopTime: number
+    staticTime:string,
+    status: string
+    machineName:string
+    power:string
   }
 
   export interface CarHistoryProps {
@@ -47,17 +49,26 @@ export interface CarProps {
     animation:boolean
     speed:string
     time:number
+    setPopupContent:React.Dispatch<React.SetStateAction<IPopupContent | null | undefined>>
   }
   export interface CarMarkerProps{
       lat: number;
       lng: number;
       dir: number;
+      setPopupContent:React.Dispatch<React.SetStateAction<IPopupContent | null | undefined>>
   }
+  export interface ICarMarker{
+    lat: number;
+    lng: number;
+    dir: number;
+    unitBeing?:CarAlarmProps
+}
   export interface CarAnimationProps {
     locationData: Array<CarHistoryProps>;
     showTrack: boolean
     speed:string
     timeline : number
+    setPopupContent:React.Dispatch<React.SetStateAction<IPopupContent | null | undefined>>
   }
   export interface LatLng {
     lat: number;
@@ -90,9 +101,32 @@ export interface CarProps {
     userId: number,
     userType: number
   }
+export interface ICarInformation {
+        activeTime: string,
+        agentRemark: string,
+        carId: number,
+        carNO: string,
+        carType: number,
+        imei: string,
+        joinTime: string,
+        machineName: string,
+        machineType: number,
+        platformTime: string,
+        remark: string,
+        saleTime: string,
+        serviceState: number,
+        serviceTime: string,
+        serviceTimeOrigin: string,
+        simNO: string,
+        updateTime: string,
+        userId: number
+}
+export interface IPopupContent extends CarProps {
+  address: string
+}
   // drop downs
 
-  export  interface SearchParamsDto {
-    name:number;
-    code:number
-  }
+export  interface SearchParamsDto {
+  name:number;
+  code:number
+}

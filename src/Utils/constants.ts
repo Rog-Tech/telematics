@@ -1,8 +1,8 @@
 import React from 'react'
 import { Buffer } from 'buffer'
 
-const basicAuth = {
-    username:'test', 
+export const basicAuth = {
+    username:'Tgabjs', 
     password :'password'
 }
 

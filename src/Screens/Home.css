@@ -11,13 +11,13 @@ video.fullscreen {
   }
   
   .container {
-     position: relative;
-     display: grid;
-     place-items: center;
-     height: 100vh;
-     width: 100vw;
-     margin: 0 auto;
-     background: #ccc;
+       /* position: relative; */
+       display: flex;
+       place-items: center;
+       height: 100vh;
+       width: 100vw;
+       /* margin: 0 auto; */
+       background: linear-gradient(to bottom, #002d47, #011c2c);
   }
  
   .content {
@@ -43,7 +43,7 @@ video.fullscreen {
   /* li a:hover:not(.active) {
     background-color: #007ad9;
   } */
-  .card {
+  /* .card {
     max-height: 350px;
     min-height: 300px;
     width: 250px;
@@ -58,4 +58,4 @@ video.fullscreen {
     background-color: #E6E8F4;
     border-radius: 60px 0px 60px 0px;
     opacity: 0.88; 
-  }
+  } */

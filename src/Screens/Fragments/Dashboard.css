@@ -3,7 +3,7 @@
     justify-content: space-between;
     padding: 10px;
     float: right;
-    width: 100%;
+    width: 21rem;
 }
 .tracks-label{
     margin: auto;
@@ -37,6 +37,8 @@
     width: 75%;
     margin-left: 5px;
     margin: auto;
+    border-radius: 16px;
+    margin-left: 2px;
 }
 .icons-tracks{
     display: flex;
@@ -67,14 +69,16 @@
     display: flex;
     justify-content: space-between;
     padding: 10px;
+    cursor: pointer;
 }
 .custom-target-icon{
     cursor: pointer;
-    height: 1.5rem;
+    height: 2.7rem;
+    margin-top: -12px
 }
 .img-icons{
-    height: 1rem;
-    margin-top: 10px;
+    height: 1.5rem;
+    margin-top: -3px;
 }
 
 .notifications-options{
@@ -119,16 +123,22 @@
     font-weight: 400;
 }
 .p-dialog .p-dialog-header {
-    background: #36658a !important;
+    background: #f2f5f7 !important;
+    height: 1rem !important;
+    color: black;
+    font-weight: 500;
 }
-
+.p-dialog .p-dialog-header .p-dialog-header-icon:enabled {
+    color: #5ab7ff;
+    margin-top: -12px !important;
+}
 .notification-popups{
     display: flex;
     justify-content: flex-end;
     align-items: center;
 }
 .notification-popups > p,i {
-    margin: 10px;
+    /* margin: 10px; */
 }
 
 .button-set{
@@ -140,3 +150,27 @@
     border: none;
 }
 
+@media (max-width:768px) {
+    .closeButton{
+        display: flex;
+    }
+}
+.closeButton{
+    display: flex;
+    justify-content: inherit;
+    bottom: 0;
+    position: fixed;
+    margin: 16px 6px;
+    border-radius: 50%;
+}
+.closeButton >button{
+    border-radius: 50%;
+}
+
+.track-container-title{
+    margin: 18px;
+}
+
+.pi{
+    cursor: pointer;
+}

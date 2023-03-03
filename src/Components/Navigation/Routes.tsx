@@ -20,87 +20,55 @@ import './Header.css'
 const BaseRouter = () => {
   const [tracks,setTracks] = React.useState(false);
   const [msg,setMsg] = React.useState(false);
-  const [monitoring,setMonitoring] = React.useState(false);
-  const [notifications,setNotifications] = React.useState(true)
-  const [data,setData] = React.useState(Array<CarAlarmProps>());
-  React.useEffect(() => {
-    const interval = setInterval(async () => {
-      axios.get(getFullUrl('/api/v1/gps/cars'),{
-        headers:{
-          'Authorization': `Basic ${Token}`
-        }
-      }).then((res)=>{
-           const d = res.data as Array<CarAlarmProps>
-        setData(d)
-      }).catch((error)=>{
-        console.log(error)
-      })
-      //  pull  data after  every 1 update to suitable time 
+  const [monitoring,setMonitoring] = React.useState(true);
+  const [notifications,setNotifications] = React.useState(false)
 
-    }, 30000);
-
-    // clean up
-    return () => clearInterval(interval);
-  }, []);
   // pull the dataset here
   return (
     <>
       <NavBar  
             setTracks={setTracks} 
             setMsg={setMsg} 
-            setmonitoring={setMonitoring}
+            setMonitoring={setMonitoring}
             setNotifications={setNotifications}
       />
       <div>
         <Routes>
-            <Route path='/dashboard' element={
+          <Route path='/monitoring' element={
+              <Dashboard 
+                tracks={tracks} 
+                msg={msg} 
+                monitoring={monitoring}
+                notifications = {notifications}
+              /> } />
+           <Route path='/dashboard' element={
+              <Dashboard 
+                tracks={tracks} 
+                msg={msg} 
+                monitoring={monitoring}
+                notifications = {notifications}
+              /> } 
+            />
+            <Route path='/analytics' element={<Analytics /> } />
+            <Route path='/tracks' element={
+              <Dashboard 
+                tracks={tracks} 
+                msg={msg} 
+                monitoring={monitoring}
+                notifications = {notifications}
+              /> } 
+            />
+            <Route path='/msg' element={
             <Dashboard 
               tracks={tracks} 
               msg={msg} 
               monitoring={monitoring}
               notifications = {notifications}
             /> } />
-            <Route path='/analytics' element={<Analytics data={data}/> } />
+           
         </Routes>
       </div>
     </>
-    // <div>
-    //   <div className="top-bar">
-    //     {/* <Header 
-    //          setTracks={setTracks} 
-    //          setMsg={setMsg} 
-    //         setmonitoring={setMonitoring}
-    //         setNotifications={setNotifications}
-    //     />  */}
-        
-    //   </div>
-    //   <div className="content">
-    //     display content 
-    //   </div>
-    // </div>
-    // <div className='grid grid-nogutter'>
-    //   <div className='col-12 md:col-6 lg:col-12 top-bar'>
-    //       <Header 
-    //         setTracks={setTracks} 
-    //         setMsg={setMsg} 
-    //         setmonitoring={setMonitoring}
-    //         setNotifications={setNotifications}
-    //         />
-    //   </div>
-
-    //   <div className="col-12 md:col-6 lg:col-12">
-    //       <Routes>
-    //         <Route path='/dashboard' element={
-    //           <Dashboard 
-    //               tracks={tracks} 
-    //               msg={msg} 
-    //               monitoring={monitoring}
-    //               notifications = {notifications}
-    //               /> } />
-    //         <Route path='/analytics' element={<Analytics data={data}/> } />
-    //       </Routes>
-    //   </div>
-    // </div>
   )
 }
 

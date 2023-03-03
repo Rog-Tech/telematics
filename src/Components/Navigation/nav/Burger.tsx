@@ -5,13 +5,12 @@ import RightNav from './RightNav';
 const StyledHumbugger = styled.div<{open:boolean}>`
     width:2rem;
     height:2rem;
-    position:fixed;
+    position:relative;
     top:15px;
     right:20px;
-  
-    z-index:20;
+    z-index:100;
     display:none;
-    
+
     @media (max-width: 768px) {
         display:flex;
         justify-content:space-around;
@@ -22,7 +21,7 @@ const StyledHumbugger = styled.div<{open:boolean}>`
     div{
         width:2rem;
         height:0.25rem;
-        background-color:${({open})=> open ? '#ccc' : '#333'};
+        background-color:${({open})=> open ? '#007ad9a6' : '#333'};
         border-radius:10px;
         transform-origin:1px;
         transition:all 0.3s linear;
@@ -42,9 +41,8 @@ const StyledHumbugger = styled.div<{open:boolean}>`
     }
 
 `
-const Burger = () => {
+const Burger = (props:any) => {
     const [open, setOpen] = React.useState(false);
-
   return (
     <>
     <StyledHumbugger open={open} onClick={()=>setOpen(!open)}>
@@ -52,7 +50,13 @@ const Burger = () => {
         <div />
         <div />
     </StyledHumbugger>
-    <RightNav open={open}/>
+    <RightNav open={open}
+         current={props.setcurrentMenu}   
+         setTracks={props.setTracks} 
+         setMsg={props.setMsg} 
+         setMonitoring={props.setMonitoring}
+         setNotifications={props.setNotifications}
+    />
     </>
   )
 }
