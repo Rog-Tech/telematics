@@ -50,6 +50,7 @@ function CarPathLine({ carPath }: CarPathLineProps) {
       paint: {
         'line-color': '#32CD32',
         'line-width': 3,
+        'line-dasharray': [2, 2]
       },
     }),
     []

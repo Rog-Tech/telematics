@@ -71,3 +71,28 @@
   border-bottom:none !important;
   
 }
+.p-confirm-dialog-reject{
+  display: none !important;
+}
+.p-confirm-dialog-accept{
+  display: none !important;
+}
+.p-dropdown-panel .p-dropdown-items .p-dropdown-item.p-highlight {
+  color: #ffffff;
+  background: #3144f7 !important;
+}
+.p-dropdown-panel {
+  position: absolute;
+  margin-top: 5px;
+  border-radius: 15px;
+}
+.p-dialog.p-confirm-dialog .p-confirm-dialog-icon {
+  font-size: 1rem;
+  color: #1a2695;
+  font-weight: 500;
+}
+.p-dialog.p-confirm-dialog .p-confirm-dialog-message {
+  margin-left: 1rem;
+  color: #1f2a95;
+  font-size: 1rem;
+  font-weight: 300;}

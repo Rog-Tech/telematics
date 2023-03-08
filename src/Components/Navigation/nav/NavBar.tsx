@@ -11,6 +11,7 @@ const Nav  = styled.nav`
   padding: 0 10px;
   display:flex;
   justify-content:space-between;
+  position:inherit;
   .currentMenu{
     display:none;
   }
@@ -35,14 +36,12 @@ const Nav  = styled.nav`
 `
 const NavBar = (props:any) => {
   const navigate = useNavigate();
-
   const [currentMenu, setcurrentMenu] = React.useState("Notifications");
 
   return (
     <Nav>
       <div className="logo">
         <img className='header-logo' src={logo} alt="" onClick={()=> navigate('/')} />
-        
       </div>
       
      <Burger 
@@ -51,6 +50,7 @@ const NavBar = (props:any) => {
       setMsg={props.setMsg} 
       setMonitoring={props.setMonitoring}
       setNotifications={props.setNotifications}
+      setOpenDataWindow={props.setOpenDataWindow}
      /> 
     </Nav>
   )

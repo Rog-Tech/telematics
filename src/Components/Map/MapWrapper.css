@@ -79,8 +79,8 @@ td, th {
   }
 
   .p-speeddial-button.p-button.p-button-icon-only {
-    width: 2.5rem !important;
-    height: 2.5rem !important;
+    width: 2rem !important;
+    height: 2rem !important;
 }
 
 .notification-badge{
@@ -94,15 +94,22 @@ td{
     font-size: 300;
 }
 .mapboxgl-popup-close-button{
-    padding: 8px !important;
+    padding: 2px 8px !important;
     background: white !important;
     margin: 12px !important;
     border-radius: 30% !important;
     border: none !important;
+    font-size: 24px !important;
 }
 .popup-target-icon{
     cursor: pointer;
     height: 2.7rem;
     margin-top: -4px;
     margin-left: 69px;
+}
+.p-speeddial-action {
+    width: 2rem;
+    height: 2rem;
+    background: white;
+    color:#a9a9a9;;
 }

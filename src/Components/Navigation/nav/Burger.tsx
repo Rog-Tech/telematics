@@ -8,7 +8,7 @@ const StyledHumbugger = styled.div<{open:boolean}>`
     position:relative;
     top:15px;
     right:20px;
-    z-index:100;
+    z-index:560;
     display:none;
 
     @media (max-width: 768px) {
@@ -48,7 +48,7 @@ const Burger = (props:any) => {
     <StyledHumbugger open={open} onClick={()=>setOpen(!open)}>
         <div />
         <div />
-        <div />
+        <div /> 
     </StyledHumbugger>
     <RightNav open={open}
          current={props.setcurrentMenu}   
@@ -56,6 +56,7 @@ const Burger = (props:any) => {
          setMsg={props.setMsg} 
          setMonitoring={props.setMonitoring}
          setNotifications={props.setNotifications}
+         setOpenDataWindow={props.setOpenDataWindow}
     />
     </>
   )

@@ -5,11 +5,8 @@ import { InputText } from 'primereact/inputtext';
 import { Panel } from 'primereact/panel';       
 import './Dashboard.css'
 import { Divider } from 'primereact/divider'
-import { Checkbox } from "primereact/checkbox";
 import axios from 'axios'
-import { getFullUrl } from '../../Utils/Helper';
-import carSmall from '../../assets/carSmall.png'
-import batteryStatus from '../../assets/batteryStatus.svg'
+import { ComputeAddress, getFullUrl } from '../../Utils/Helper';
 import { Tooltip } from 'primereact/tooltip';
 import { CarAlarmProps, CarHistoryProps, CarProps, ICarInformation, SearchParamsDto } from '../../types/Types'
 import { Button } from 'primereact/button'
@@ -17,8 +14,6 @@ import { Token } from '../../Utils/constants'
 import { Dialog } from 'primereact/dialog';
 import GrowlContext from '../../Utils/growlContext'
 import styled from 'styled-components'
-import { SpeedDial } from 'primereact/speeddial'
-import { MenuItem } from 'primereact/menuitem'
 import { SelectButton } from 'primereact/selectbutton';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import battery from '../../assets/battery.svg';
@@ -29,28 +24,57 @@ const Content = styled.div<{open:boolean}>`
   justify-content:space-between;
   .MapOptions{
     /* max-width:30vw; */
-    width:fit-content;
-    height:100vh;
-    width:25vw;
+    width: -webkit-fit-content;
+    width: -moz-fit-content;
+    width: fit-content;
+    width: 29vw;
+    position: absolute;
+    z-index: 500;
+    background: white;
+    border-radius: 9px;
+    margin: 5px;
   }
-  .modal-button{
-    position:absolute;
-    z-index:1000;
-    bottom:0
+  .modal-button-open{
+    background: transparent;
+    position: absolute;
+    z-index: 500;
+    padding: 0px 1px;
+    border-radius: 50%;
+    /* left: 22.5rem; */
+    right: 0;
+  }
+  .modal-button-closed{
+    background: transparent;
+    position: absolute;
+    z-index: 500;
+    padding: 0px 1px;
+    border-radius: 50%;
+    /* left: 22.5rem; */
+    left: 0;
+    margin:5px;
   }
 
   @media (max-width: 768px) {
     .MapOptions{
-      transform:${({open})=> open ? 'translateX(0)' : 'translateX(100%)'};
+      /* transform:${({open})=> open ? 'translateX(0)' : 'translateX(100%)'}; */
       transition:transform 0.3s ease-in-out;
-      width: 100%;
+      width: 98%;
       position: absolute;
       left: 0;
       right: 0;
       z-index: 50;
       height: fit-content;
-      background: #f1f1f1;
-      overflow-y:scroll
+      background: white;
+      overflow-y:scroll;
+      margin-top:15px;
+    }
+    .modal-button-open{
+      padding: 1px 5px;
+      right:0;
+    }
+    .modal-button-closed{
+      padding: 1px 5px;
+      left:0;
     }
   }
 `
@@ -73,7 +97,7 @@ const Battery = styled.span`
 `
 interface CarDto {
   car:Array<CarProps>
-  setSelectedUnit:React.Dispatch<React.SetStateAction<Car | null>>
+  setSelectedUnit:React.Dispatch<React.SetStateAction<Car | null| undefined>>
 }
 
 interface DateTimeFormatOptions {
@@ -94,27 +118,42 @@ export const Dashboard = (props:any) => {
   const [playTrack, setPlay] = React.useState(false);
   const [data,setData] = React.useState(Array<CarProps>());
   const [tracks,setTracks] = React.useState(Array<CarHistoryProps>());
-  const [carInfo,setCarInfo] = React.useState<ICarInformation>();
-  const [unitId,setUnitId] = React.useState<Car | null>({name:1356089, code:1356089});
+  const [unitId,setUnitId] = React.useState<Car | null>();
   const [time,setTime] = React.useState<number>(20)
   const [speed,setSpeed] = React.useState("1");
   const [isloading, setisloading] = React.useState(false)
+
   const usrCtx = JSON.parse( window.localStorage.getItem('refreshToken')!)
   const {name,token} =  usrCtx;
   const growl = React.useContext(GrowlContext);
-
-  console.log(props)
 
   React.useEffect(() => {
     setisloading(true)
     const interval = setInterval(async () => {
       axios.get(getFullUrl(`/api/v1/gps/cars?token=${token}`)).then((res)=>{
         const  x = res.data
+        if(x.length < 1 ){
+          growl.current.show({
+            summary: "No units",
+            severity:'info'
+          })
+          return
+        }
+     
         if (x.parent.accountDto.name === name) {
             const parentData = x.parent.cars as Array<CarProps>
             const ChildData = x.child.map((t:any)=>t.cars).flat()
+            const dto = parentData.concat(ChildData)
             setData(parentData.concat(ChildData))
             setisloading(false)
+
+            const d : Car[] = dto.map((r:CarProps)=>{
+              return {
+                name:r.carId, code:r.carId
+              }
+             })
+             
+
         }else{
           const childOnlyData =  x.child.map((t:any)=>t.cars).flat();
 
@@ -126,16 +165,31 @@ export const Dashboard = (props:any) => {
         console.log(error)
         setisloading(false)
       })
-      //  pull  data after  every 1 update to suitable time 
-
     }, 1500);
 
     // clean up
     return () => clearInterval(interval);
   }, []);
 
+
+
+
+  // set the first  unit as default unit
   React.useEffect(() => {
-    let carId = unitId?.code ? unitId.code : 1356089
+    if (data) {
+      const d : Car[] = data.map((r:CarProps)=>{
+        return {
+          name:r.carId, code:r.carId
+        }
+       })
+     
+       setUnitId(d.at(0))
+    }
+  }, [props])
+  
+
+  React.useEffect(() => {
+    let carId = unitId?.code
     const today = new Date();
     const pastDate = new Date(today.getTime() - time * 24 * 60 * 60 * 1000)
     axios.post(getFullUrl(`/api/v1/gps/carHistory?token=${token}`),{
@@ -158,45 +212,33 @@ export const Dashboard = (props:any) => {
     })
   }, [unitId,time]);
 
-
-
-  React.useEffect(() => {
-        axios.get(getFullUrl(`/api/v1/gps/carInfoById?carId=${unitId?.code}&token=${token}`),{
-      }).then((res)=>{
-        const  x = res.data as ICarInformation
-        setCarInfo(x)
-  }).catch((error)=>{
-    console.log(error)
-  })
-  }, [unitId])
-  
-
+  const [manageModal,setModal] =  React.useState(true)
 
   React.useEffect(()=>{
     setShowTracks(props.tracks)
     setMessages(props.msg)
+    setModal(props.openDataWindow)
   },[props])
-
-  const [close, showClosed] = React.useState(true)
-  const [manageModal,setModal] =  React.useState(false)
 
   return (
     <>
-      <Content open={close}>
+      <Content open={manageModal}>
         {manageModal && (
              <div className="MapOptions">
+               <div className='modal-button-open'>
+              {manageModal &&(<i onClick={()=>setModal(false)} className="pi pi-times" style={{fontSize:'1rem', color:'red'}}></i>)}
+             </div>
              {showTracks &&(<TracksScreen  setPlay={setPlay} setTime={setTime} setSpeed={setSpeed}
-                     setUnitId={setUnitId} data={tracks} units={data} />)}
-             {showMessages && (<MessageScreen  units={data}  setUnitId={setUnitId} carInfo = {carInfo}/>)}
+                     setUnitId={setUnitId} data={tracks} units={data} defaultUnit = {unitId}/>)}
+             {showMessages && (<MessageScreen token={token} units={data}  setUnitId={setUnitId} defaultUnit = {unitId}/>)}
              {props.monitoring && (<MonitorControl  car={data} setSelectedUnit={setUnitId} />)}
              {props.notifications && (<Notifications   setUnitId={setUnitId} data = {data} token={token} />)}
+            
          </div>
         )}
-       
-        <div className='modal-button'>
+       <div className='modal-button-closed'>
           {
-            manageModal ? <i onClick={()=>setModal(false)} className="pi pi-directions-alt" style={{fontSize:'2rem', color:'#007ad9'}}></i> 
-            : <i  onClick={()=>setModal(true)} className="pi pi-directions" style={{fontSize:'2rem', color:'#007ad9'}}></i>
+           !manageModal && (<i  onClick={()=>setModal(true)} className="pi pi-window-maximize" style={{fontSize:'1rem', color:'#007ad9'}}></i>)
           }
                
         </div>
@@ -240,7 +282,7 @@ const StyledDiv = styled.div`
     }
 `
 const TracksScreen = (props:any) => {
-  const [selectedCar,setSelectedUnit] = React.useState<Car>({name:1356089, code:1356089});
+  const [selectedCar,setSelectedUnit] = React.useState<Car>(props.defaultUnit);
   const [checked, setChecked] = React.useState<boolean>(true);
   const [speed,setSpeed] = React.useState("5");
   const [time,setTime] = React.useState<number>(20)
@@ -249,16 +291,14 @@ const TracksScreen = (props:any) => {
   React.useEffect(() => {
     const d : Car[] = props.units.map((r:CarProps)=>{
         return {
-          name:r.carId, code:r.carId
+          name:r.machineName, code:r.carId
         }
     })  
     setdropDownOptions(d)
-    
   }, [props.units])
 
-
-  const [open] = React.useState(false);
   const selectButtonOptions: string[] = ['לפני שבעה ימים', 'לפני עשרים יום'];
+
   const [value, setValue] = React.useState<string>(selectButtonOptions[1]);
 
   React.useEffect(()=>{
@@ -290,15 +330,6 @@ const TracksScreen = (props:any) => {
       <label className='tracks-label'>שם יחידה</label>
       <InputText  value={selectedCar?.name as unknown as string} readOnly className='tracks-input'/>
     </div>
-    {/* <div className='tracks-container'>
-      <label className='tracks-label'>צֶבַע</label>
-      <InputText value='By trips' readOnly  className='tracks-input'/>
-    </div>
-    <div className='tracks-container'>
-      <label className='tracks-label'>קבע מהירות</label>
-      <InputNumber className='tracks-input' inputId="integeronly" value={speed} onValueChange={(e: InputNumberValueChangeEvent) => setSpeed(e.value)} />
-      <InputText value={speed} className="tracks-input" onChange={(e)=>setSpeed(e.target.value)}  placeholder='מְהִירוּת'/>
-    </div> */}
     <Divider />
    
       {selectedCar?.name && (
@@ -317,15 +348,28 @@ const TracksScreen = (props:any) => {
   )
 }
 const MessageScreen = (props:any) => {
-  const [selectedCar,setSelectedUnit] = React.useState<Car>({name:1356089, code:1356089});
+ 
   const [dropDownOptions,setdropDownOptions] = React.useState(Array<Car>());
   const [carInformation,setCarInformation]= React.useState<ICarInformation>(props.carInfo);
+  const [selectedCar,setSelectedUnit] = React.useState<Car>(props.defaultUnit);
 
+
+  React.useEffect(() => {
+    if (selectedCar) {
+      axios.get(getFullUrl(`/api/v1/gps/carInfoById?carId=${selectedCar.code}&token=${props.token}`),{
+      }).then((res)=>{
+        const  x = res.data as ICarInformation
+        setCarInformation(x)
+  }).catch((error)=>{
+    console.log(error)
+  })
+    }
+  }, [selectedCar])
 
   React.useEffect(() => {
     const d : Car[] = props.units.map((r:CarProps)=>{
         return {
-          name:r.carId, code:r.carId
+          name:r.machineName, code:r.carId
         }
     })  
     setdropDownOptions(d)
@@ -334,7 +378,6 @@ const MessageScreen = (props:any) => {
 
   React.useEffect(()=>{
     props.setUnitId(selectedCar)
-    setCarInformation(props.carInfo)
   },[selectedCar])
 
   return (
@@ -403,29 +446,33 @@ const MonitorControl:FunctionComponent<CarDto> = ({car,setSelectedUnit}) => {
     );
     setFilteredItems(filtered);
   };  
-  const [open, setOpen] = React.useState(false);
 
-  const ComputeAddress = async (r:CarProps)=>{
-      try{
-        const response = await fetch(
-          `https://api.mapbox.com/geocoding/v5/mapbox.places/${r.lon},${r.lat}.json?language=he&access_token=pk.eyJ1IjoiY2hhbm4iLCJhIjoiY2w3OHI1a293MGI4aTNxbzh1dHI5b2owaSJ9.RSbIOzGoHc8JnKvgyIWZ4w`
-        );
-        const data = await response.json();
-        setAdress(data.features[0].place_name_he)
-
-      }catch{
-        console.log("problem getting address")
-      }
-      confirmDialog({
-        message:address ,
-        header: 'כתובת היחידה',
-        icon: 'pi pi-marker',
+  const ComputeAddress = async (r:CarProps): Promise<string> => {
+    try {
+      const response = await fetch(
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${r.lon},${r.lat}.json?language=he&access_token=pk.eyJ1IjoiY2hhbm4iLCJhIjoiY2w3OHI1a293MGI4aTNxbzh1dHI5b2owaSJ9.RSbIOzGoHc8JnKvgyIWZ4w`
+      );
+      const data = await response.json();
+      return data.features[0].place_name_he;
+    } catch (error) {
+      console.log("problem getting address", error);
+      return "";
+    }
+  };
+  const OnClick = async (r: CarProps) => {
+    const address = await ComputeAddress(r);
+    confirmDialog({
+      message: address,
+      header: 'כתובת היחידה',
+      icon: 'pi pi-map-marker',
     });
-  }
+  };
+  
 
   return (
    <>
-    <ConfirmDialog />
+  <ConfirmDialog onHide={()=> setAdress("")} footer={null} />
+    
    <Tooltip target=".custom-target-icon"  />
     <div className='tracks-container'>
       <div className='tracks-container'>
@@ -444,7 +491,7 @@ const MonitorControl:FunctionComponent<CarDto> = ({car,setSelectedUnit}) => {
             <i  data-pr-tooltip="לְאַתֵר" onClick={()=>handleSelectedUnit(r.carId)}
                     className="pi pi-map-marker custom-target-icon" style={{ color: '#263af7' }}></i>
               <i  className="pi pi-home custom-target-icon" style={{ color: '#263af7' }} 
-              onClick={()=>ComputeAddress(r)} data-pr-tooltip="כתובת"></i>
+              onClick={()=>OnClick(r)} data-pr-tooltip="כתובת"></i>
               {/* <i className="pi pi-pause custom-target-icon" style={{ color: '#263af7' }}></i> */}
               <i className="pi pi-info-circle custom-target-icon" 
                   style={{ color: '#263af7' }}  data-pr-tooltip={r.gateType}  ></i>
@@ -493,14 +540,14 @@ const Notifications = (props:any) => {
   const [filtered,setFiltered] = React.useState(Array<CarAlarmProps>())
   const [notification,setNotification] = React.useState<CarAlarmProps>()
 
-    React.useEffect(() => {
-      const d : Car[] = props.data.map((r:CarProps)=>{
-          return {
-            name:r.carId, code:r.carId
-          }
-      })  
-      setdropDownOptions(d)
-    }, [props.data])
+  React.useEffect(() => {
+    const d : Car[] = props.data.map((r:CarProps)=>{
+        return {
+          name:r.machineName, code:r.carId
+        }
+    })  
+    setdropDownOptions(d)
+  }, [props.data])
 
   
   React.useEffect(()=>{
@@ -596,17 +643,26 @@ const Notifications = (props:any) => {
       })
     })
   }
-  // TO DO  : temporary move this to HCO 
-  const [open, setOpen] = React.useState(false);
+     
+  const OnClick = async (r: CarAlarmProps) => {
+    const address = await ComputeAddress(r);
+    confirmDialog({
+      message: address,
+      header: 'כתובת היחידה',
+      icon: 'pi pi-map-marker',
+      style:{color:"263af7", fontSize:"1rem"}
+    });
+  }; 
 
     return (
    <>
-      <Dialog header="Send Notification" visible={show} style={{ width: '35vw' }} onHide={() => setShow(false)} modal={false}>
+       <ConfirmDialog  footer={null} />
+      <Dialog header="שלח הודעה" visible={show} style={{ width: '35vw' }} onHide={() => setShow(false)} modal={false}>
         <div className="share">
               <label className='labels'>מספר טלפון</label>
-              <InputText className='input' value={phone}  onChange={(e)=>setPhone(e.target.value)} placeholder="+ country code e.g +254700000"/>
+              <InputText className='input' value={phone}  onChange={(e)=>setPhone(e.target.value)} placeholder="+ קוד מדינה, למשל"/>
         </div>
-        <Button disabled={!canSend} className='button' onClick={sendNotification} icon="pi pi-send" label='Send'/>
+        <Button disabled={!canSend} className='button' onClick={sendNotification} icon="pi pi-send" label='לִשְׁלוֹחַ'/>
       </Dialog>
       <Tooltip target=".custom-target-icon"  />
       <div className='monitor-search-icons'>
@@ -615,19 +671,26 @@ const Notifications = (props:any) => {
       </div>
      <Divider />
      <Tooltip target=".custom-target-icon"  />
-      {alarms.length < 1 ? <p style={{textAlign:"center"}}>אין רשומות עבור יחידה זו</p>
+      {alarms.length < 1 ? <p style={{textAlign:"center",margin:"10px"}}>אין רשומות עבור יחידה זו</p>
         : <div style={{maxHeight:"28rem", overflowY:"auto"}}>
         {
         alarms.map((x,index)=>
           <div className='monitor-search-icons' >
         
-                  {x.machineName}
+                  <p>{x.machineName}</p> 
+                  <p>{x.alarmTime}</p>
                   
                 <InlineItems>
-                {x.alarDescription}
-  
-                    <i  data-pr-tooltip="לַחֲלוֹק " onClick={()=>handleShowModal(x)}
-                            className="pi pi-share-alt custom-target-icon" style={{ color: '#263af7',marginTop:"5px" }}></i>
+                  {x.alarDescription}
+    
+                      <i  data-pr-tooltip="לַחֲלוֹק " onClick={()=>handleShowModal(x)}
+                              className="pi pi-share-alt custom-target-icon" style={{ color: '#263af7',marginTop:"5px" }}>
+                            
+                      </i>
+                      <i  data-pr-tooltip="לַחֲלוֹק " onClick={()=>OnClick(x)}
+                              className="pi pi-map-marker custom-target-icon" style={{ color: '#263af7',marginTop:"5px" }}>
+                            
+                      </i>
                 </InlineItems>
          </div>
        

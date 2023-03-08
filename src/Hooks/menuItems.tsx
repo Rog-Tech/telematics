@@ -36,6 +36,7 @@ export const MenuItems = (props:any) => {
     const [title, settitle] = useState("התראה חדשה")
    
     React.useEffect(()=>{
+
       if (!props.selectedUnit) {
         return
       }
@@ -93,7 +94,7 @@ export const MenuItems = (props:any) => {
             <div className='floating-menu'>
             <Badge className='notification-badge' value={newAlarms.length}></Badge>
             <Toast ref={toast} />
-            <SpeedDial model={items} direction="up" style={{ left: 'calc(50% - 2rem)', bottom: 0 }} />
+            <SpeedDial showIcon="pi pi-bell" model={items} direction="up" style={{ left: 'calc(50% - 2rem)', bottom: 0 }} />
          </div>
         </>
     )

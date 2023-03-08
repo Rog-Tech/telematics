@@ -1,6 +1,10 @@
-import React from 'react'
-import { Link, NavLink, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { count } from 'console';
+import React, { useState } from 'react'
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components'
+import GrowlContext from '../../../Utils/growlContext';
+import { getFullUrl } from '../../../Utils/Helper';
 interface StyledNavLinkProps {
   activeClassName: string;
 }
@@ -40,13 +44,13 @@ const Ul = styled.ul<{open:boolean}>`
         width:250px;
         padding-top:3.5rem;
         transition:transform 0.3s ease-in-out;
-        z-index:60;
+        z-index:505;
         .signout{
           display:flex;
           justify-content: flex-end;
           color: brown;
           font-weight: bold;
-          font-size: 2rem;
+          font-size: 1rem;
         }
         .elipse{
           display:none;
@@ -57,12 +61,26 @@ const Ul = styled.ul<{open:boolean}>`
             font-size:14px;
             cursor:pointer
         }
+        .user{
+          font-size: 12px;
+          margin-right: 0px;
+          margin-left: 7px;
+        }
     }
   
 `
 const RightNav = (props:any) => {
-    const navigate = useNavigate();
+
+  const growl = React.useContext(GrowlContext)
+  const usrCtx = JSON.parse( window.localStorage.getItem('refreshToken')!)
+  const {name,token} =  usrCtx;
+  const navigate = useNavigate();
+  const currentRoute = useLocation()
+  const currentPath = currentRoute.pathname;
+  const[selected,setselected] = useState("Monitoring");
+
   const setSelectedTab = (type: "Monitoring" | "Messages" | "Tracks" | "Geofence" | "Notifications" | "Analytics") =>{
+    
     switch (type) {
        case "Monitoring":
         props.setTracks(false)
@@ -93,6 +111,29 @@ const RightNav = (props:any) => {
     }
   }
 
+
+
+    const logOut = ()=>{
+      axios.post(getFullUrl(`/api/v1/auth/logout?token=${token}`),{
+      
+      }).then((res)=>{
+  
+        growl.current.show({
+          summary:"You have logged out",
+          severity:'success'
+         })
+
+         navigate('/')
+         window.localStorage.removeItem("refreshToken")
+      }).catch((error)=>{
+       growl.current.show({
+        summary:"Could not log you out",
+        severity:'error'
+       })
+      })
+    }
+
+
   const activeDiv = (isActive:boolean, currenttab:any)=>{
     if(isActive){
       setSelectedTab(currenttab)
@@ -102,6 +143,39 @@ const RightNav = (props:any) => {
       return 'links'
     }
   }
+
+  function useSingleAndDoubleClick(actionSimpleClick: () => void, actionDoubleClick: () => void, delay = 250) {
+    const [click, setClick] = useState(0);
+
+    React.useEffect(() => {
+        const timer = setTimeout(() => {
+            // simple click
+            if (click === 1) actionSimpleClick();
+            setClick(0);
+        }, delay);
+
+        // the duration between this click and the previous one
+        // is less than the value of delay = double-click
+        if (click === 2) actionDoubleClick();
+
+        return () => clearTimeout(timer);
+        
+    }, [click]);
+
+    return () => setClick(prev => prev + 1);
+}
+
+// TO  DO 
+const callbackDoubleClick =()=>{
+    props.setOpenDataWindow(false)
+}
+const callbackClick =()=>{
+  props.setOpenDataWindow(true)
+}
+const click = useSingleAndDoubleClick(callbackClick, callbackDoubleClick);
+
+
+  
   return (
     <Ul open={props.open}>
         <NavLink to='/analytics' className={({ isActive }) =>
@@ -112,37 +186,37 @@ const RightNav = (props:any) => {
 
 
         <NavLink to='/monitoring' className={({ isActive }) =>
-            activeDiv(isActive,"Monitoring")} >
+            activeDiv(isActive,"Monitoring")}>
             <i className="pi pi-globe" style={{'fontSize': '0.8rem', marginRight:"10px"}}></i>
             מעקב חי
         </NavLink>
 
-      
-
-        <NavLink to='/msg' className={({ isActive }) =>
-            activeDiv(isActive,"Messages")} >
+    
+        <NavLink to='/messages' className={({ isActive }) =>
+            activeDiv(isActive,"Messages")}>
             <i className="pi pi-comments" style={{'fontSize': '0.8rem', marginRight:"10px"}}></i>
             הודעות
         </NavLink>
 
         <NavLink to='/tracks' className={({ isActive }) =>
-            activeDiv(isActive,"Tracks")} >
+            activeDiv(isActive,"Tracks")}>
             <i className="pi pi-flag-fill" style={{'fontSize': '0.8rem', marginRight:"10px"}}></i>
             מסלולים
         </NavLink>
        
-        <NavLink to='/dashboard' className={({ isActive }) =>
-            activeDiv(isActive,"Notifications")} onClick={()=> setSelectedTab("Notifications")}>
+        <NavLink to='/notifications' className={({ isActive }) =>
+            activeDiv(isActive,"Notifications")}>
             <i className="pi pi-bell" style={{'fontSize': '0.8rem', marginRight:"10px"}}></i>
             התרעות
         </NavLink>
         <li className='elipse'>
             <i className="pi pi-ellipsis-v" style={{ fontSize: '1.5rem' }}></i>
         </li>
-        <li className='elipse' onClick={()=> navigate('/')}>Administrator</li>
-        <li className='signout'> <i onClick={()=> navigate('/')} className="pi pi-power-off" style={{ fontSize: '1.5rem' }}></i></li>
+        <li className='elipse' onClick={logOut}>{name}</li>
+        <li  onClick={logOut} className='signout'><i className="pi pi-power-off" style={{ fontSize: '1rem' }}></i><strong className='user'>{name}</strong></li>
     </Ul>
   )
 }
 
 export default RightNav
+

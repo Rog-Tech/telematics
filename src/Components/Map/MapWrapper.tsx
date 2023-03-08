@@ -8,16 +8,21 @@ import { Divider } from 'primereact/divider';
 import { Tracks } from '../../Screens/Fragments/Tracks';
 import { CarHistoryProps, CarProps, IPopupContent } from '../../types/Types';
 import { MenuItems } from '../../Hooks/menuItems';
-import mapboxgl, { LineLayer } from 'mapbox-gl';
 import styled from 'styled-components';
 import satellite from '../../assets/satellite.svg'
 import wirelessicon from '../../assets/wirelessicon.svg'
-import { LngLatBounds } from "mapbox-gl";
+import mapboxgl, { LngLatBounds } from "mapbox-gl";
 import odometer from '../../assets/odometer.svg'
 import stopwatch from '../../assets/stopwatch.svg'
 import { ProgressSpinner } from 'primereact/progressspinner';
 import battery from '../../assets/battery.svg';
 import GrowlContext from '../../Utils/growlContext';
+import {MapboxStyleSwitcherControl,MapboxStyleDefinition} from 'mapbox-gl-style-switcher';
+import "mapbox-gl-style-switcher/styles.css";
+import  LayerControl  from 'react-map-gl';
+import { MenuItem } from 'primereact/menuitem';
+import { SpeedDial } from 'primereact/speeddial';
+
 // import { setRTLTextPlugin } from 'mapbox-gl-rtl-text';
 //  Mapbox bug - https://stackoverflow.com/questions/65434964/mapbox-blank-map-react-map-gl-reactjs
 // The following is required to stop "npm build" from transpiling mapbox code.
@@ -27,7 +32,14 @@ import GrowlContext from '../../Utils/growlContext';
 mapboxgl.workerClass = require('worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker').default;
 
 
+const LayerControlDiv = styled.div`
+    position:absolute;
+    top:100px;
+    right:0;
+    z-index:49;
+    margin:13px;
 
+`
 const PopupItemContainer = styled.div`
   span{
     display: flex;
@@ -52,8 +64,8 @@ const PopupItemContainer = styled.div`
 `
 
 const initialViewPoint = {
-    latitude: 32.104139,
-    longitude: 34.894497,
+    latitude: 31.33119,
+    longitude: 34.918909,
     zoom: 12,
 }
 interface Car {
@@ -86,6 +98,7 @@ const MapWrapper = (props:any)=> {
   const mapRef = useRef<MapRef>(null);
   const [play,setPlay] =  React.useState<boolean>(props.playTrack)
   const growl = React.useContext(GrowlContext);
+  const [mapStyle, setMapStyle] = useState('mapbox://styles/chann/clef9nc62000601pgkf94y02a');
   // handle map clicks: TO DO - use marker event propagation instead
 
   React.useEffect(()=>{
@@ -117,26 +130,14 @@ const MapWrapper = (props:any)=> {
     }
     
     if (showTracks && tracks.length > 1) {
-     
-      
-      // const features = map.queryRenderedFeatures(
-      //   [[lng, lat], [mapBounds?.getNorthEast?.()?.lng, mapBounds?.getNorthEast?.()?.lat]],
-      //   { layers: [layer?.id as string] }
-      // );
-      
       const firstTrack = tracks.at(0);
       if (firstTrack) {
         map.flyTo({ center: [firstTrack.lon, firstTrack.lat], zoom: 12 });
       }
     } else if (!showTracks && !messages && data.length > 1 ) {
       const carData = data.filter((t: CarProps) => t.carId === k.code);
-      map.flyTo({ center: [carData[0].lon, carData[0].lat], zoom: 19 });
+      map.flyTo({ center: [carData[0].lon, carData[0].lat], zoom: 15 });
     } else {
-
-      // growl.current.show({
-      //   summary:"No record found for this unit. please select a different time range.",
-      //   severity:'info'
-      // })
     }
   };
   
@@ -145,54 +146,50 @@ const MapWrapper = (props:any)=> {
       FitView(props.unitId, props);
     } 
   }, [props.unitId, props.tracks]); // reload with the image when
+
+
   
-  // const FitView =(k:Car)=>{
-     
-  //     const map = mapRef.current?.getMap();
-  //     const layer = map?.getLayer("car-path");
-  //     const mapBounds = map?.getBounds();
-  //     console.log(mapBounds)
-  //     const bounds = new LngLatBounds();
-  //     let lonSouthEast :number = mapBounds?.getSouthEast().lng as number
-  //     let latSouthEast :number = mapBounds?.getSouthEast().lat as number
-  //     let lonNorthEast :number = mapBounds?.getNorthEast().lng as number
-  //     let latNorthEast :number = mapBounds?.getNorthEast().lat as number
-
-  //     const  d:CarProps[] = props.data.filter((t:CarProps)=>t.carId === k.code)    
-  //    if(map && k && props.showTracks && props.tracks.length > 1){
-  //       const features = map.queryRenderedFeatures([[lonSouthEast, latSouthEast],
-  //          [lonNorthEast, latNorthEast]],{ layers: [layer?.id as string] });
-  //          console.log(features)
-
-  //       const y:CarHistoryProps = props.tracks.at(0)
-  //       if (y) {
-
-  //         map.flyTo({ center: [y.lon, y.lat], zoom:15})
-  //       }
-  //       // debugger
-  //    }else if(map && k && !props.showTracks && !props.messages){
-  //       map.flyTo({ center: [d[0].lon, d[0].lat], zoom:19})
-  //    }else{
-  //     console.log("no record for this unit try selecting a different range")
-  //    }
-  // } 
-
-  // React.useEffect(() => {
-  //   if (props.unitId) {
-  //     FitView(props.unitId)
-  //   }
-  // }, [props.unitId])
-
+  const styles: MapboxStyleDefinition[] = [
+    {
+        title: "Satelite",
+        uri:"mapbox://styles/chann/ckhlsly700les19pbrd0holga"
+    },
+    {
+        title: "Light",
+        uri:"'mapbox://styles/chann/clef9nc62000601pgkf94y02a'"
+    }
+  ];
+    
+  const items: MenuItem[] = [
+    {
+        label: 'Labels',
+        style:{color:"grey"},
+        icon: 'pi pi-map',
+        command: () => {
+          onMapStyleChange("mapbox://styles/chann/clef9nc62000601pgkf94y02a")
+        }
+    },
+    {
+        label: 'Update',
+        icon:<img src={satellite} alt='' style={{height:"1.2rem"}} />,
+        command: () => {
+          onMapStyleChange("mapbox://styles/chann/ckhlsly700les19pbrd0holga")
+        }
+    }]
+   const onMapStyleChange = (style: string) => {
+      setMapStyle(style);
+    };
   return (
    <>
    {isloading&&(<ProgressSpinner style={{width: '50px', height: '50px'}} strokeWidth="8" fill="var(--surface-ground)" animationDuration=".5s" />)}
     <MenuItems setShowAlerts={props.setShowAlerts} notifications={props.notifications} selectedUnit= {props.unitId}/>
+      
     <Map 
       ref={mapRef}
       initialViewState={viewpoint}
       mapboxAccessToken={MAPBOX_TOKEN}
-      style={{width: "99vw", height: "100vh"}}
-      mapStyle='mapbox://styles/chann/clef9nc62000601pgkf94y02a'
+      style={{width: "100vw", height: "100vh"}}
+      mapStyle={mapStyle}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       cursor={cursor}
@@ -263,6 +260,9 @@ const MapWrapper = (props:any)=> {
     }
     {props.data && !props.showTracks &&(<CarMarkers setPopupContent = {setPopupContent} 
         vehicles={props.data}/>)}
+    <LayerControlDiv>
+      <SpeedDial showIcon='pi pi-map' model={items} direction="down" style={{ left: 'calc(50% - 2rem)', top: 0 }} />
+    </LayerControlDiv>
     </Map>
    </>
   )
@@ -331,3 +331,9 @@ const CarMarkers = (props:any) => {
    </>
   );
 };
+
+interface MapControlProps {
+  styleSwitcher: MapboxStyleSwitcherControl;
+  map:MapRef
+}
+
