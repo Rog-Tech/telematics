@@ -1,7 +1,8 @@
 import { CarAlarmProps, CarProps } from "../types/Types";
 
 export const getFullUrl = (url:string) =>{
-    const baseUrl :string = 'http://147.182.206.220:8888'
+    const baseUrl :string = 'http://46.101.141.98:8084'
+    // const baseUrl :string = 'http://147.182.206.220:8888'
     return  baseUrl + url
 }
 export const  DateFormatOptions = {

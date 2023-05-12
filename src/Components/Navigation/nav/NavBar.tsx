@@ -50,7 +50,7 @@ const NavBar = (props:any) => {
       setMsg={props.setMsg} 
       setMonitoring={props.setMonitoring}
       setNotifications={props.setNotifications}
-      setOpenDataWindow={props.setOpenDataWindow}
+      setGeofence = {props.setGeofence}
      /> 
     </Nav>
   )

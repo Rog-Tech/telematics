@@ -8,7 +8,7 @@ const Header = (props:any) => {
 
   const [activeDiv, setActiveDiv] = React.useState<number | null>(5);
 
-  const setSelectedTab = (type: "Monitoring" | "Messages" | "Tracks" | "Geofence" | "Notifications") =>{
+  const setSelectedTab = (type: "Monitoring" | "Messages" | "Tracks" | "Geofence" | "Notifications" ) =>{
     switch (type) {
       case "Monitoring":
         props.setTracks(false)
@@ -39,6 +39,12 @@ const Header = (props:any) => {
         setActiveDiv(5) 
         break;  
       case "Geofence":
+        props.setTracks(false) 
+        props.setMsg(false) 
+        props.setmonitoring(false) 
+        props.setNotifications(false) 
+        props.setGeofence(true) 
+        setActiveDiv(6) 
         break;
       default:
         break;

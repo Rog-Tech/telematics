@@ -1,7 +1,7 @@
 import React from 'react'
 
 export interface CarProps {
- accStatus: number,
+    accStatus: number,
     accTime: number,
     carId: number,
     dir: number,
@@ -22,6 +22,8 @@ export interface CarProps {
     status: string
     machineName:string
     power:string
+    remark:string
+    imei: string,
   }
 
   export interface CarHistoryProps {
@@ -47,15 +49,24 @@ export interface CarProps {
   export interface CarDto {
     car:Array<CarHistoryProps>
     animation:boolean
-    speed:string
+    speed:number
     time:number
-    setPopupContent:React.Dispatch<React.SetStateAction<IPopupContent | null | undefined>>
+    setPopupContent:React.Dispatch<React.SetStateAction<IPopup | null | undefined>>
+    direction:boolean;
+    setSlider : React.Dispatch<React.SetStateAction<number | undefined>>
+    setMaxSlider : React.Dispatch<React.SetStateAction<number | undefined>>
+    slider : number
+  }
+
+  export interface CarStop {
+    carUnits :  Array<CarHistoryProps>
+    setPopupContent:any
   }
   export interface CarMarkerProps{
       lat: number;
       lng: number;
       dir: number;
-      setPopupContent:React.Dispatch<React.SetStateAction<IPopupContent | null | undefined>>
+      setPopupContent:React.Dispatch<React.SetStateAction<IPopup | null | undefined>>
   }
   export interface ICarMarker{
     lat: number;
@@ -66,9 +77,13 @@ export interface CarProps {
   export interface CarAnimationProps {
     locationData: Array<CarHistoryProps>;
     showTrack: boolean
-    speed:string
+    speed:number
     timeline : number
-    setPopupContent:React.Dispatch<React.SetStateAction<IPopupContent | null | undefined>>
+    setPopupContent:React.Dispatch<React.SetStateAction<IPopup | null | undefined>>
+    directionForward:boolean;
+    setSlider : React.Dispatch<React.SetStateAction<number | undefined>>
+    setMaxSlider : React.Dispatch<React.SetStateAction<number | undefined>>
+    slider:number
   }
   export interface LatLng {
     lat: number;
@@ -101,6 +116,12 @@ export interface CarProps {
     userId: number,
     userType: number
   }
+
+
+export interface IPopup extends CarProps, CarAlarmProps,CarHistoryProps{
+  address: string
+}
+
 export interface ICarInformation {
         activeTime: string,
         agentRemark: string,
@@ -129,4 +150,31 @@ export interface IPopupContent extends CarProps {
 export  interface SearchParamsDto {
   name:number;
   code:number
+}
+interface FencePoint {
+  0: string;
+  1: string;
+}
+export interface Fence {
+  carFenceId: number;
+  carNum: number;
+  createTime: string;
+  fenceType: "ONLY_USER";
+  type: "CIRCLE" | "POLYGON";
+  name: string;
+  outSwitch: boolean;
+  inSwitch: boolean;
+  platform: number;
+  points: [string,string];
+  radius: number;
+  pushSubFlag: boolean;
+  userId: number;
+  userType: number;
+  isSupportControlPoil: number;
+  publicFlag: number;
+}
+
+export interface OptionsTypes {
+  name:string;
+  value:string;
 }

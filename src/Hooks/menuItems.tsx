@@ -47,9 +47,9 @@ export const MenuItems = (props:any) => {
                   const sorted = x.sort((a, b) => new Date(a.alarmTime).getTime() -new Date(b.alarmTime).getTime());
                   // console.log(sorted.reverse())
                   setNewAlarms(sorted.reverse())
-        
+                  props.setNewAlarms(sorted.reverse())
               }).catch((error)=>{
-                console.log("there's a problem")
+                // console.log("there's a problem")
               })
         },1500)
           return () => clearInterval(interval);

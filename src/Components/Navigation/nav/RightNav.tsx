@@ -5,6 +5,7 @@ import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components'
 import GrowlContext from '../../../Utils/growlContext';
 import { getFullUrl } from '../../../Utils/Helper';
+import  Geofence from '../../../assets/Geofence.svg'
 interface StyledNavLinkProps {
   activeClassName: string;
 }
@@ -17,6 +18,10 @@ const StyledNavLink = styled(NavLink)<StyledNavLinkProps>`
 
 
 const Ul = styled.ul<{open:boolean}>`
+    .geofence-icon{
+      width:1.1rem !important;
+      margin-bottom: -4px;
+    }
     list-style:none;
     display:flex;
     flex-flow:row nowrap;
@@ -72,12 +77,12 @@ const Ul = styled.ul<{open:boolean}>`
 const RightNav = (props:any) => {
 
   const growl = React.useContext(GrowlContext)
-  const usrCtx = JSON.parse( window.localStorage.getItem('refreshToken')!)
-  const {name,token} =  usrCtx;
+  const refreshToken = JSON.parse(window.localStorage.getItem('refreshToken') || '{}');
+  const token= refreshToken.token
+  const name= refreshToken.name
+  // const usrCtx = JSON.parse( window.localStorage.getItem('refreshToken')!)
+  // const {name,token} =  usrCtx;
   const navigate = useNavigate();
-  const currentRoute = useLocation()
-  const currentPath = currentRoute.pathname;
-  const[selected,setselected] = useState("Monitoring");
 
   const setSelectedTab = (type: "Monitoring" | "Messages" | "Tracks" | "Geofence" | "Notifications" | "Analytics") =>{
     
@@ -87,33 +92,43 @@ const RightNav = (props:any) => {
         props.setMonitoring(true) 
         props.setMsg(false) 
         props.setNotifications(false)
+        props.setGeofence(false)
         break;
       case "Messages":
         props.setTracks(false) 
         props.setMsg(true) 
         props.setMonitoring(false) 
         props.setNotifications(false) 
+        props.setGeofence(false)
         break;
       case "Tracks":
         props.setTracks(true) 
         props.setMsg(false) 
         props.setMonitoring(false) 
         props.setNotifications(false) 
+        props.setGeofence(false)
         break;
       case "Notifications":
         props.setTracks(false) 
         props.setMsg(false) 
         props.setMonitoring(false) 
         props.setNotifications(true) 
-        break;  
+        props.setGeofence(false)
+        break;
+      case "Geofence":
+        props.setTracks(false) 
+        props.setMsg(false) 
+        props.setMonitoring(false) 
+        props.setNotifications(false) 
+        props.setGeofence(true)
+        break;    
       default:
         break;
     }
   }
 
-
-
     const logOut = ()=>{
+      console.log("i am being clicked but not responding")
       axios.post(getFullUrl(`/api/v1/auth/logout?token=${token}`),{
       
       }).then((res)=>{
@@ -134,48 +149,16 @@ const RightNav = (props:any) => {
     }
 
 
-  const activeDiv = (isActive:boolean, currenttab:any)=>{
+  const activeDiv = (isActive:boolean, currentTab:any)=>{
     if(isActive){
-      setSelectedTab(currenttab)
-      props.current(currenttab)
+      setSelectedTab(currentTab)
+      props.current(currentTab)
       return 'active-links'
     }else{
       return 'links'
     }
   }
 
-  function useSingleAndDoubleClick(actionSimpleClick: () => void, actionDoubleClick: () => void, delay = 250) {
-    const [click, setClick] = useState(0);
-
-    React.useEffect(() => {
-        const timer = setTimeout(() => {
-            // simple click
-            if (click === 1) actionSimpleClick();
-            setClick(0);
-        }, delay);
-
-        // the duration between this click and the previous one
-        // is less than the value of delay = double-click
-        if (click === 2) actionDoubleClick();
-
-        return () => clearTimeout(timer);
-        
-    }, [click]);
-
-    return () => setClick(prev => prev + 1);
-}
-
-// TO  DO 
-const callbackDoubleClick =()=>{
-    props.setOpenDataWindow(false)
-}
-const callbackClick =()=>{
-  props.setOpenDataWindow(true)
-}
-const click = useSingleAndDoubleClick(callbackClick, callbackDoubleClick);
-
-
-  
   return (
     <Ul open={props.open}>
         <NavLink to='/analytics' className={({ isActive }) =>
@@ -208,6 +191,12 @@ const click = useSingleAndDoubleClick(callbackClick, callbackDoubleClick);
             activeDiv(isActive,"Notifications")}>
             <i className="pi pi-bell" style={{'fontSize': '0.8rem', marginRight:"10px"}}></i>
             התרעות
+        </NavLink>
+        <NavLink to='/geofence' className={({ isActive }) =>
+            activeDiv(isActive,"Geofence")}>
+            {/* <i className="pi pi-bell" style={{'fontSize': '0.8rem', marginRight:"10px"}}></i> */}
+            <img className='geofence-icon' src={Geofence}  alt=""/>
+            גדר גיאו
         </NavLink>
         <li className='elipse'>
             <i className="pi pi-ellipsis-v" style={{ fontSize: '1.5rem' }}></i>

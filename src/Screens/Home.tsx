@@ -138,11 +138,13 @@ const StyledCard = styled.div`
 type userContext = {
   name:string;
   token:string;
+  isAuthenticated:boolean;
 }
-export const Home = () => {
+
+export const Home = (props:any) => {
   const growl = React.useContext(GrowlContext);
   const navigate = useNavigate();
-  const [username, setusername] = React.useState("")
+  const [username, setUserName] = React.useState("")
   const [password, setPassword] = React.useState("")
 
   const canSave = username !== "" || password !== "";
@@ -154,23 +156,32 @@ export const Home = () => {
     }).then((res)=>{
 
       const userContext :userContext = {
-        name: username, token:res.data
+        name: username, token:res.data.token, isAuthenticated:true
       }
 
       window.localStorage.setItem("refreshToken",JSON.stringify(userContext))
-      navigate("/monitoring")
 
+      navigate("/monitoring")
+      if (props.routeUnitId && props.routeAlarmId ) {
+        props.setIsAuthenticated(true)
+        var carId =props.routeUnitId
+        var alarmId = props.routeAlarmId 
+        // navigate(`/notifications/${carId}/${alarmId}`, { state: { carId,alarmId } })
+        navigate('/notifications', { state: { carId,alarmId } });
+      }else{
+        navigate("/monitoring")
+      }
     }).catch((error)=>{
-     growl.current.show({
-      summary:"Invalid Details",
-      severity:'error'
-     })
+      growl.current.show({
+        summary:"Invalid Details",
+        severity:'error'
+      })
     })
   }
 
-    const openExternal = (url:string)=>{
-      window.open(url,'_blank')
-    }
+  const openExternal = (url:string)=>{
+    window.open(url,'_blank')
+  }
   return (
     <MainContainer>
       <div className="div">
@@ -196,7 +207,7 @@ export const Home = () => {
             
               <StyledInputGroup>
                   <label >מייל</label>
-                  <InputText id="email" type="email" onChange={(e)=>setusername(e.target.value)}/>
+                  <InputText id="email" type="email" onChange={(e)=>setUserName(e.target.value)}/>
               </StyledInputGroup>
               <StyledInputGroup>
                     <label>סיסמה</label><br></br>

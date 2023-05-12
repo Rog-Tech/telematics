@@ -7,19 +7,24 @@ import {
   CarAnimationProps, CarDto, 
   ICarMarker, 
   CarMarkerProps, 
-  CarPathLineProps, CarProps, LatLng, PathWithDistance, CarHistoryProps, IPopupContent 
+  CarPathLineProps, LatLng, PathWithDistance, IPopup 
 } from '../../types/Types';
+
 import GrowlContext from '../../Utils/growlContext';
 
-
-export const Tracks:FC<CarDto> = ({car,animation,speed,time,setPopupContent}) => {
-  React.useEffect(() => {
-  }, [time])
+export const Tracks:FC<CarDto> = ({car,animation,speed,time,setPopupContent,direction,setSlider,setMaxSlider,slider}) => {
   const sortedPoints = car.sort((a, b) => new Date(a.pointDt).getTime() -new Date(b.pointDt).getTime());
+
   return (
       <>
         <CarPathLine  carPath={sortedPoints}/>
-        <CarAnimation locationData={sortedPoints} showTrack={animation} speed={speed} timeline={time} setPopupContent={setPopupContent}/>  
+        <CarAnimation locationData={sortedPoints} 
+            showTrack={animation} speed={speed} timeline={time} 
+            setPopupContent={setPopupContent} directionForward={false} 
+            setMaxSlider={setMaxSlider}
+            setSlider={setSlider}
+            slider = {slider}
+            />  
       </>
   )
 }
@@ -65,7 +70,7 @@ function CarPathLine({ carPath }: CarPathLineProps) {
 
 const CarMarker:FC<CarMarkerProps> = ({lat,lng,dir,setPopupContent}) => {
 
-  const [content,setContent]= React.useState<IPopupContent | null>();
+  const [content,setContent]= React.useState<IPopup | null>();
 
   React.useEffect(()=>{
     setPopupContent(content)
@@ -75,12 +80,7 @@ const CarMarker:FC<CarMarkerProps> = ({lat,lng,dir,setPopupContent}) => {
   return (
       <Marker 
         onClick={e => {
-        // If we let the click event propagates to the map,
-        //  it will immediately close the popup
-        // with `closeOnClick: true`
         e.originalEvent.stopPropagation();
-        // props.setPopupContent(r)
-        // setContent(e)
         console.log(lat,lng,dir)
       }} longitude={lng} latitude={lat}>
       <img 
@@ -93,17 +93,18 @@ const CarMarker:FC<CarMarkerProps> = ({lat,lng,dir,setPopupContent}) => {
   )
 }
 
-function CarAnimation({ locationData,showTrack,speed,timeline,setPopupContent}: CarAnimationProps) {
+function CarAnimation({ locationData,showTrack,speed,timeline,setPopupContent,setSlider,setMaxSlider,slider}: CarAnimationProps) {
   const growl = React.useContext(GrowlContext);
   const defaultPath : LatLng[]= locationData.map((loc)=> {
     return {lat:loc.lat, lng:loc.lon}
   })
 
   const unitBeingTracked = locationData.at(0);
- 
+  
 
-  const DEFAULT_SPEED:number =+speed; // m/s
+  const DEFAULT_SPEED:number =speed; // m/s
   const [time, setTime] = useState(0);
+  const [dist, setdist] = useState(0)
   const r: PathWithDistance[] = defaultPath.reduce(
     (result: PathWithDistance[], item: LatLng, index: number, array: LatLng[]) => {
       if (index === 0) {
@@ -124,6 +125,7 @@ function CarAnimation({ locationData,showTrack,speed,timeline,setPopupContent}: 
     // setTime(time => time + 1);
     if(showTrack){
       setTime(time => time + 1);
+      // setSlider(time)
     }else{
       setTime(time => time)
     }
@@ -134,23 +136,39 @@ function CarAnimation({ locationData,showTrack,speed,timeline,setPopupContent}: 
       return () => {
         clearInterval(interval);
       };
-    
   }, [increaseTime]);
 
-  const distance = DEFAULT_SPEED * time;
 
-  const position = getPositionAt(r, distance);
 
-  // React.useEffect(() => {
-  //   if(!position){
-  //     growl.current.show({
-  //       summary: "No path history for this unit",
-  //       severity:"info"
-  //     })
-  //   }
-  // }, [position])
+// get max distance 
+React.useEffect(() => {
+  if (r.length > 1) {
+    setMaxSlider(r[r.length - 1].distance);
+  }
+}, [r]);
 
-  return <>{
+// const distance = DEFAULT_SPEED * time
+
+React.useEffect(() => {
+  if (slider > 0) {
+    let sliderDistance = slider + (slider * 0.01);
+    setdist(sliderDistance);
+  }else if(slider > 0 && showTrack){
+       let updatedDistance = slider + (DEFAULT_SPEED * time)  
+       console.log(updatedDistance)
+       setdist(updatedDistance) 
+  } else {
+    let defaultDistance = DEFAULT_SPEED * time;
+    if (showTrack) {
+      defaultDistance *= (slider + 1); // add 1 to slider to avoid 0 value
+    }
+    setdist(defaultDistance);
+  }
+}, [slider, showTrack, DEFAULT_SPEED, time]);
+
+
+const position = getPositionAt(r, dist);
+ return <>{
     position && (
     <CarMarker 
        lng={position.lng} lat={position.lat} 
@@ -163,6 +181,7 @@ function CarAnimation({ locationData,showTrack,speed,timeline,setPopupContent}: 
 
 function getPositionAt(path: any, distance: number) {
   const indexesPassed = path.filter((position:any) => position.distance < distance);
+ 
   if (indexesPassed.length === 0) {
     return path[0];// starting position
   }
