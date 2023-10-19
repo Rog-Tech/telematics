@@ -105,7 +105,7 @@ export const Geofence = (props:any) => {
 
   const  editGeofence = (r:Fence)=>{
     props.setSelectedGeofence(r)
-    props.setshowGeofence(true)
+    props.setShowGeofence(true)
   }
 
   React.useEffect(()=>{
@@ -117,7 +117,7 @@ export const Geofence = (props:any) => {
     }).catch((error)=>{
         console.log(error)
     })
-  },[])
+  },[props.geofenceId])
 
   const Geofence = (operation:string)=>{
       const ids = units?.map((i)=> {
@@ -168,6 +168,7 @@ export const Geofence = (props:any) => {
             severity:"success"
           })
         }).catch((error)=>{
+          console.log(error)
           growl.current.show({
             summary: "Could not perform the operation",
             severity:"error"
@@ -228,21 +229,20 @@ export const Geofence = (props:any) => {
   }
 
   const deleteFence = (id:number) => {
+    console.log(id)
     const accept = () =>{
       axios.post(getFullUrl(`/api/v1/gps/deleteFence?fenceId=${id}&token=${props.token}`)).then((r)=>{
+        const carFenceId  = r.data
+        const x = selectedGeofence?.filter((y)=>y.carFenceId !==id)
+        const filteredFence = fences.filter((d)=>d.carFenceId !== id)
+        setFences(filteredFence)
+        setSelectedGeofence(x)
         growl.current.show({
           severity:"success",
           summary: 'Fence has been deleted successfully'
         })
-
-        const carFenceId  = r.data
-        const x = selectedGeofence?.filter((y)=>y.carFenceId !==id)
-        const filteredFence = fences.filter((d)=>d.carFenceId !== id)
-
-        setFences(filteredFence)
-        setSelectedGeofence(x)
-
     }).catch((error)=>{
+     
       growl.current.show({
         severity:"error",
         summary: 'Failed, could not delete the the fence'
@@ -270,8 +270,8 @@ export const Geofence = (props:any) => {
           </div>
           <PanelContent>
             {selectedGeofence && 
-              selectedGeofence?.map((x:Fence)=>
-                <GeofenceItems>
+              selectedGeofence?.map((x:Fence,index)=>
+                <GeofenceItems key={index}>
                   <p>
                   <strong>Name</strong>
                   {x.name}

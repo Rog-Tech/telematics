@@ -8,7 +8,6 @@ type CarInformations = {
 const UnitCategories : FunctionComponent <CarInformations> = ({info}) => {
     const [chartData, setChartData] = useState({});
     const [chartOptions, setChartOptions] = useState({});
-
     useEffect(() => {
         const labels = info.map((r)=> {
             return r.machineName

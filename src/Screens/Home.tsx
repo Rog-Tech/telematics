@@ -1,7 +1,7 @@
 import React from 'react'
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
-import { useNavigate } from "react-router-dom";
+import { useMatch, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import "./Home.css";
 import axios from 'axios';
@@ -146,7 +146,7 @@ export const Home = (props:any) => {
   const navigate = useNavigate();
   const [username, setUserName] = React.useState("")
   const [password, setPassword] = React.useState("")
-
+  const match = useMatch('/path');
   const canSave = username !== "" || password !== "";
   const login = ()=>{
 
@@ -159,18 +159,19 @@ export const Home = (props:any) => {
         name: username, token:res.data.token, isAuthenticated:true
       }
 
+      if(userContext){
+        props.setIsAuthenticated(true)
+        navigate("/gps/monitoring")
+      }
       window.localStorage.setItem("refreshToken",JSON.stringify(userContext))
-
-      navigate("/monitoring")
+      // debugger
       if (props.routeUnitId && props.routeAlarmId ) {
         props.setIsAuthenticated(true)
         var carId =props.routeUnitId
         var alarmId = props.routeAlarmId 
-        // navigate(`/notifications/${carId}/${alarmId}`, { state: { carId,alarmId } })
-        navigate('/notifications', { state: { carId,alarmId } });
-      }else{
-        navigate("/monitoring")
+        navigate('/gps/notifications', { state: { carId,alarmId } });
       }
+      
     }).catch((error)=>{
       growl.current.show({
         summary:"Invalid Details",

@@ -100,7 +100,6 @@ function CarAnimation({ locationData,showTrack,speed,timeline,setPopupContent,se
   })
 
   const unitBeingTracked = locationData.at(0);
-  
 
   const DEFAULT_SPEED:number =speed; // m/s
   const [time, setTime] = useState(0);
@@ -142,6 +141,7 @@ function CarAnimation({ locationData,showTrack,speed,timeline,setPopupContent,se
 
 // get max distance 
 React.useEffect(() => {
+
   if (r.length > 1) {
     setMaxSlider(r[r.length - 1].distance);
   }

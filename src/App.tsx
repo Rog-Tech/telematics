@@ -9,7 +9,7 @@ import GrowlContext from './Utils/growlContext';
 import { Route, Routes, useLocation,useNavigate } from 'react-router-dom';
 import { Home } from './Screens/Home';
 import BaseRouter from './Components/Navigation/Routes';
-
+import logo from './assets/logo.png'
 
 
 
@@ -26,7 +26,7 @@ function App() {
   React.useEffect(() => {
     // Check if the URL matches the specific pattern
     const regex = /^\/notifications\/\d+\/[a-zA-Z0-9-]+$/;
-
+  
     if (regex.test(currentRoute.pathname)) {
 
       const paramsArray = currentRoute.pathname.split("/");
@@ -39,23 +39,25 @@ function App() {
       navigate('/notifications', { state: { carId,alarmId } });
     }
   }, [navigate, currentRoute.pathname]);
+
   return (
     <GrowlContext.Provider value={growl as any}>
          <Growl ref={(el) => (growl.current = el as any)} />
          <Routes>
-         <Route path='/' 
-            element={<Home setIsAuthenticated={setIsAuthenticated} 
-            routeUnitId={routeUnitId} routeAlarmId={routeAlarmId} />}></Route>
+          <Route index path="/gps"
+              element={<Home setIsAuthenticated={setIsAuthenticated} 
+              routeUnitId={routeUnitId} routeAlarmId={routeAlarmId} />}></Route>
+       
+          <Route path="/" element={
+            <div className="welcome-page">
+               <p>Rog tech dev center</p>
+               <img src={logo} alt=''/>
+            </div>}/>
          </Routes>
-        
-         {/* {
-          !isHomePage && (<BaseRouter 
-            isAuthenticated={isAuthenticated} 
-            setRouteUnitId={setRouteUnitId} setRouteAlarmId={setRouteAlarmId}/>)
-         } */}
-        <BaseRouter 
-            isAuthenticated={isAuthenticated} 
-            setRouteUnitId={setRouteUnitId} setRouteAlarmId={setRouteAlarmId}/>
+         <BaseRouter 
+           isAuthenticated={isAuthenticated} 
+           setRouteUnitId={setRouteUnitId} setRouteAlarmId={setRouteAlarmId}/>
+       
     </GrowlContext.Provider>
   );
 }

@@ -5,7 +5,7 @@ import * as d3 from "d3";
 
 const alarmTypesChartFunc = (divRef, ndx) => {
 
-    const dim = ndx.dimension((d)=>d.alarmType);
+    const dim = ndx.dimension((d)=>d.alarDescription);
 
     const dimMeasure = dim.group().reduceCount();
 
@@ -14,14 +14,17 @@ const alarmTypesChartFunc = (divRef, ndx) => {
     Chart
     .width(350)
     .height(300)
+    
     .slicesCap(4)
-    .innerRadius(70)
+    .innerRadius(50)
     .dimension(dim)
     .group(dimMeasure)
-    .legend(dc.legend().highlightSelected(true))
+    .externalRadiusPadding(35)
+    .colors(d3.scaleOrdinal().range(["#FFA500", "#00ff00", "#0000ff"]))
+    .legend(dc.legend().highlightSelected(true).x(10).y(255))
     .on('pretransition', function(chart) {
         chart.selectAll('text.pie-slice').text(function(d) {
-            return d.data.key + ' ' + dc.utils.printSingleValue((d.endAngle - d.startAngle) / (2*Math.PI) * 100) + '%';
+            return dc.utils.printSingleValue((d.endAngle - d.startAngle) / (2*Math.PI) * 100) + '%';
         })
     });
 

@@ -33,10 +33,6 @@ type GpsSystem = {
   gpsSystemCars: GpsSystemCar[];
 };
 
-
-
-
-
 const BaseRouter = (props:any) => {
   const currentRoute = useLocation()
   const navigate = useNavigate();
@@ -106,11 +102,14 @@ const BaseRouter = (props:any) => {
 
   return (
     <>
-      <NavBarMemoized />
+      {props.isAuthenticated && (
+        <NavBarMemoized />
+      )}
+      
       <div>
         <Routes>
             <Route
-                path="/monitoring"
+                path="/gps/monitoring"
                 element={
                   <ProtectedRoutes isSignedIn={props.isAuthenticated}>
                     {dashboardComponent}
@@ -118,7 +117,7 @@ const BaseRouter = (props:any) => {
                 }
             />
             <Route
-                path="/notifications"
+                path="/gps/notifications"
                 element={
                   <ProtectedRoutes isSignedIn={props.isAuthenticated}>
                     {dashboardComponent}
@@ -126,7 +125,7 @@ const BaseRouter = (props:any) => {
                 }
             />
             <Route
-                path="/analytics"
+                path="/gps/analytics"
                 element={
                   <ProtectedRoutes isSignedIn={props.isAuthenticated}>
                     <Analytics data={data} />
@@ -135,7 +134,7 @@ const BaseRouter = (props:any) => {
             />
 
           <Route
-                path="/tracks"
+                path="/gps/tracks"
                 element={
                   <ProtectedRoutes isSignedIn={props.isAuthenticated}>
                     {dashboardComponent}
@@ -143,7 +142,7 @@ const BaseRouter = (props:any) => {
                 }
             />
             <Route
-                path="/messages"
+                path="/gps/messages"
                 element={
                   <ProtectedRoutes isSignedIn={props.isAuthenticated}>
                     {dashboardComponent}
@@ -151,7 +150,7 @@ const BaseRouter = (props:any) => {
                 }
             />
             <Route
-                path="/geofence"
+                path="/gps/geofence"
                 element={
                   <ProtectedRoutes isSignedIn={props.isAuthenticated}>
                     {dashboardComponent}
@@ -159,7 +158,7 @@ const BaseRouter = (props:any) => {
                 }
             />
             <Route
-                path="/notifications:carId/:alarmId"
+                path="/gps/notifications:carId/:alarmId"
                 element={
                   <ProtectedRoutes isSignedIn={props.isAuthenticated}>
                     {dashboardComponent}
@@ -197,7 +196,8 @@ interface ProtectedRoutesProps {
 
 export const  ProtectedRoutes = ({ isSignedIn, children }:ProtectedRoutesProps)=> {
   if (!isSignedIn) {
-    return <Navigate to="/" replace />
+    
+    return <Navigate to="/gps" replace />
   }
   return children
 }

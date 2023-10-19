@@ -158,6 +158,7 @@ export const Analytics = (props:any) => {
 
   React.useEffect(()=>{
     if (props.data) {
+    
         const d : Car[] = props.data.map((r:CarProps)=>{
           return {
             name:r.machineName + "-" + r.remark, code:r.carId
@@ -369,10 +370,10 @@ export const Analytics = (props:any) => {
                 </div>
                )}
               </div>
-              {isMobile ? <Divider /> : <Divider  layout='vertical'/>}
-              <div className="div">
+              {/* {isMobile ? <Divider /> : <Divider  layout='vertical'/>} */}
+              {/* <div className="div">
                  {carInfo && ( <UnitCategories info={carInfo} />)}
-              </div>
+              </div> */}
             </OverViewContainer>
         </DataContext>
       </TabPanel>

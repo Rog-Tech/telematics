@@ -128,7 +128,7 @@ const RightNav = (props:any) => {
   }
 
     const logOut = ()=>{
-      console.log("i am being clicked but not responding")
+
       axios.post(getFullUrl(`/api/v1/auth/logout?token=${token}`),{
       
       }).then((res)=>{
@@ -138,7 +138,7 @@ const RightNav = (props:any) => {
           severity:'success'
          })
 
-         navigate('/')
+         navigate('/gps')
          window.localStorage.removeItem("refreshToken")
       }).catch((error)=>{
        growl.current.show({
@@ -161,38 +161,38 @@ const RightNav = (props:any) => {
 
   return (
     <Ul open={props.open}>
-        <NavLink to='/analytics' className={({ isActive }) =>
+        <NavLink to='/gps/analytics' className={({ isActive }) =>
             (isActive ? "active-links" : "link")}>
             <i className="pi pi-chart-bar" style={{'fontSize': '0.8rem', marginRight:"10px"}}></i>
             בקרה
         </NavLink>
 
 
-        <NavLink to='/monitoring' className={({ isActive }) =>
+        <NavLink to='/gps/monitoring' className={({ isActive }) =>
             activeDiv(isActive,"Monitoring")}>
             <i className="pi pi-globe" style={{'fontSize': '0.8rem', marginRight:"10px"}}></i>
             מעקב חי
         </NavLink>
 
     
-        <NavLink to='/messages' className={({ isActive }) =>
+        <NavLink to='/gps/messages' className={({ isActive }) =>
             activeDiv(isActive,"Messages")}>
-            <i className="pi pi-comments" style={{'fontSize': '0.8rem', marginRight:"10px"}}></i>
-            הודעות
+            <i className="pi pi-wrench" style={{'fontSize': '0.8rem', marginRight:"10px"}}></i>
+            מידע טכני
         </NavLink>
 
-        <NavLink to='/tracks' className={({ isActive }) =>
+        <NavLink to='/gps/tracks' className={({ isActive }) =>
             activeDiv(isActive,"Tracks")}>
             <i className="pi pi-flag-fill" style={{'fontSize': '0.8rem', marginRight:"10px"}}></i>
             מסלולים
         </NavLink>
        
-        <NavLink to='/notifications' className={({ isActive }) =>
+        <NavLink to='/gps/notifications' className={({ isActive }) =>
             activeDiv(isActive,"Notifications")}>
             <i className="pi pi-bell" style={{'fontSize': '0.8rem', marginRight:"10px"}}></i>
             התרעות
         </NavLink>
-        <NavLink to='/geofence' className={({ isActive }) =>
+        <NavLink to='/gps/geofence' className={({ isActive }) =>
             activeDiv(isActive,"Geofence")}>
             {/* <i className="pi pi-bell" style={{'fontSize': '0.8rem', marginRight:"10px"}}></i> */}
             <img className='geofence-icon' src={Geofence}  alt=""/>

@@ -23,6 +23,7 @@ import { Slider, SliderChangeEvent } from "primereact/slider";
 import { Geofence } from './Geofence';
 import { extractCars } from '../../Components/Navigation/Routes';
 import { useLocation } from 'react-router-dom';
+import { networkInterfaces } from 'os';
 const Content = styled.div<{open:boolean}>`
   padding: 0 2px;
   display:flex;
@@ -162,6 +163,7 @@ export const Dashboard = (props:any) => {
   const [maxSlider, setMaxSlider] = useState(0);
   const [selectedGeofence, setSelectedGeofence] = React.useState<Fence>();
   const [showGeofence, setShowGeofence] = useState(false);
+  const [geofenceId,setGeofenceId] = React.useState()
 
   React.useEffect(() => {
     setLoading(true)
@@ -242,7 +244,7 @@ export const Dashboard = (props:any) => {
             return acc;
           }
         }, 0);
-        setMileage(totalMileage)
+        setMileage(d[d.length -1].mileage)
         const s =  d.sort((a, b) => new Date(a.pointDt).getTime() -new Date(b.pointDt).getTime())  
         setTracks(s)
         setLoading(false)
@@ -277,7 +279,11 @@ export const Dashboard = (props:any) => {
               {manageModal &&(<i onClick={()=>setModal(false)} className="pi pi-times" style={{fontSize:'1rem', color:'red'}}></i>)}
              </div>
 
-             {showTracks &&(<TracksScreen  setPlay={setPlay} setTime={setTime} setSpeed={setSpeed} setDates={setDates}
+             {showTracks &&(<TracksScreen  
+                    setPlay={setPlay} 
+                    setTime={setTime} 
+                    setSpeed={setSpeed} 
+                    setDates={setDates}
                      setUnitId={setUnitId} 
                      data={tracks} 
                      units={data} 
@@ -308,8 +314,9 @@ export const Dashboard = (props:any) => {
             {props.geofence && (<Geofence   
                     token={token} 
                     data = {data} 
-                  setSelectedGeofence = {setSelectedGeofence}
-                  setShowGeofence={setShowGeofence}
+                    setSelectedGeofence = {setSelectedGeofence}
+                    setShowGeofence={setShowGeofence}
+                    geofenceId = {geofenceId}
             />)}  
             
          </div>
@@ -346,6 +353,7 @@ export const Dashboard = (props:any) => {
                 showGeofence = {showGeofence}
                 setShowGeofence = {setShowGeofence}
                 setSelectedGeofence= {setSelectedGeofence}
+                setGeofenceId = {setGeofenceId}
           />
         </div>
       </Content>
@@ -467,7 +475,7 @@ const TracksScreen = (props:any) => {
         <div className='track-control'>
             <div className="flex align-items-center">
             <i className="pi pi-spin pi-cog" style={{ fontSize: '1.2rem' ,color:"#007ad9"}}></i>
-                <label htmlFor="Stops" className="ml-2">מפסיק</label>
+                <label htmlFor="Stops" className="ml-2">מקום עצירה</label>
             </div>
             <div className="flex align-items-center">
              <img src={odometer} className='img-odometer'  alt=''/>
@@ -609,19 +617,19 @@ const MonitorSearchContainer = styled.div`
 `
 const MonitorControl:FunctionComponent<CarDto> =React.memo(({car,setSelectedUnit}) => {
   const [searchTerm, setSearchTerm] = React.useState("");
-  const [serverItems,setServerItems] = React.useState<Array<CarProps>>([])
   const [filteredItems,setFilteredItems] = React.useState<Array<CarProps>>([])
   const [address, setAdress] = React.useState("")
 
-
-  React.useEffect(()=>{
-    setFilteredItems(car)
-  },[car]);
-
- React.useEffect(() => {
-  
- }, [])
-  
+  React.useEffect(() => {
+    if (searchTerm) {
+      const filtered = car.filter((item: CarProps) =>
+        item.machineName.toString().toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredItems(filtered);
+    } else {
+      setFilteredItems(car);
+    }
+  }, [car, searchTerm]);
 
   const handleSelectedUnit = (unitid:number, machinename:string)=>{
         const r: Car = {
@@ -634,15 +642,6 @@ const MonitorControl:FunctionComponent<CarDto> =React.memo(({car,setSelectedUnit
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const term = event.target.value;
     setSearchTerm(term);
-    const filtered = filteredItems.filter((item:CarProps) =>
-      item.carId.toString().toLowerCase().includes(term.toLowerCase()) 
-      || item.remark.toLocaleLowerCase().includes(term.toLocaleLowerCase())
-    );
-    setFilteredItems(() => filtered);
-    // console.log(filtered)
-    if (!term) {
-        setFilteredItems(car)
-    }
   };  
 
   const ComputeAddress = async (r:CarProps): Promise<string> => {
@@ -725,7 +724,7 @@ const Notifications = (props:any) => {
   const [notification,setNotification] = React.useState<CarAlarmProps>()
   const [nickname, setNickName] = useState("")
   const [carID,setCardId] = React.useState<string | null>(props.params);
-
+  
   React.useEffect(() => {
     const d : Car[] = props.data.map((r:CarProps)=>{
         return {
@@ -797,9 +796,6 @@ const Notifications = (props:any) => {
     }
   },[selectedUnit])
 
-
-
-
   const [show,setShow] = React.useState(false)
   const [phone,setPhone] = React.useState("")
 
@@ -817,12 +813,15 @@ const Notifications = (props:any) => {
         })
         return
     }
-    axios.post(getFullUrl('/api/v1/gps/alertWhatsApp'), {
+
+    axios.post(getFullUrl(`/api/v1/gps/alertWhatsApp?token=${props.token}`), {
         phone:phone,
-        alarmCode: notification.alarmId,
+        alarmCode: notification.alarmType,
         carName: notification.machineName,
         speed:notification.speed.toString(),
-        date: notification.alarmTime
+        date: notification.alarmTime,
+        lat:notification.lat,
+        lon:notification.lon
     }, {
       headers: {
         'Authorization': `Basic ${Token}` 

@@ -35,6 +35,7 @@ import GrowlContext from '../../Utils/growlContext';
 import { BufferTypeOptions, ReverseGeocodingAPIKey, SystemOptions } from '../../Utils/constants';
 import { PanelHeaderTemplateOptions } from 'primereact/panel';
 import { Dropdown } from 'primereact/dropdown';
+
 // import { setRTLTextPlugin } from 'mapbox-gl-rtl-text';
 //  Mapbox bug - https://stackoverflow.com/questions/65434964/mapbox-blank-map-react-map-gl-reactjs
 // The following is required to stop "npm build" from transpiling mapbox code.
@@ -126,7 +127,7 @@ const MapWrapper = (props:any)=> {
   const [buffer, setbuffer] = useState<GeoJSONObject | undefined>()
 
   const [lineBufferDistance, setlineBufferDistance] = useState<GeoJSONObject>()
-  const [showGeofence, setshowGeofence] = useState(false)
+  // const [showGeofence, setshowGeofence] = useState(false)
   const [bufferDistance, setbufferDistance] = useState<number | null>(null);
 
   React.useEffect(()=>{
@@ -209,7 +210,7 @@ const MapWrapper = (props:any)=> {
   };
 
    const onUpdate = useCallback((e:any) => {
-    setshowGeofence(true)
+    props.setShowGeofence(true)
     
     let  r = e.features
     if (r) {
@@ -227,8 +228,7 @@ const MapWrapper = (props:any)=> {
 
   const handleOnHide = ()=>{
     setbuffer(undefined)
-    setshowGeofence(false)
-    props.setshowGeofence(false)
+    props.setShowGeofence(false)
     props.setSelectedGeofence(undefined)
 
   }
@@ -255,12 +255,14 @@ const MapWrapper = (props:any)=> {
    {isloading&&(<ProgressSpinner style={{width: '50px', height: '50px'}} strokeWidth="8" fill="var(--surface-ground)" animationDuration=".5s" />)}
     <MenuItems setShowAlerts={props.setShowAlerts} notifications={props.notifications} selectedUnit= {props.unitId} setNewAlarms={setNewAlarms}/>
     
-    <Dialog position='bottom' header={headerTemplate} visible={showGeofence || props.showGeofence} style={{ width: '23vw'}} onHide={handleOnHide} modal={false} >
+    <Dialog position='bottom' header={headerTemplate} visible={props.showGeofence} style={{ width: '23vw'}} onHide={handleOnHide} modal={false} >
       {hideModalContent && (<GeofenceManager setBufferRadius={handleBufferRadiusChange}
         feature={features} token={props.token}
           mapRef={mapRef} setBuffer={setbuffer} 
           setlineBufferDistance={setlineBufferDistance} 
-          mapActions={false} Geofence={props.selectedGeofence}
+          mapActions={false} 
+          Geofence={props.selectedGeofence}
+          setGeofenceId={props.setGeofenceId}
           />)}
     </Dialog>
 
@@ -290,10 +292,8 @@ const MapWrapper = (props:any)=> {
                   />
                   {
                     props.showTracks ? <>
-
                         <p>{popupContent.pointDt}  :זמן עצירה </p>
                     </> : 
-
                     <>
                       <p>{popupContent.machineName}</p>
                       <PopupBattery>
@@ -379,7 +379,7 @@ const MapWrapper = (props:any)=> {
               setPopupContent={setPopupContent} 
               direction={props.directionForward} 
               setSlider={props.setSlider} 
-              setMaxSlider={props.setmaxSlider}
+              setMaxSlider={props.setMaxSlider}
               slider = {props.currentSliderValue}
               />
       <Stops carUnits={props.tracks} setPopupContent = {setPopupContent} />
@@ -510,6 +510,7 @@ interface GeoFenceManagerProps {
   token:string;
   mapActions : boolean;
   Geofence : Fence
+  setGeofenceId :React.Dispatch<React.SetStateAction<{} | undefined>>
 }
 const GoefenceManagerContainer = styled.div`
       font-size:13px;
@@ -542,7 +543,7 @@ const GoefenceManagerContainer = styled.div`
     }
 `
 
-const GeofenceManager : FunctionComponent<GeoFenceManagerProps> =({feature,mapRef,setBuffer,setlineBufferDistance,token,Geofence})=>{
+const GeofenceManager : FunctionComponent<GeoFenceManagerProps> =({feature,mapRef,setBuffer,setlineBufferDistance,token,Geofence,setGeofenceId})=>{
 
   const [outSwitch, setoutSwitch] = useState<boolean>(true);
   const [inSwitch, setinSwitch] = useState<boolean>(true);
@@ -556,8 +557,9 @@ const GeofenceManager : FunctionComponent<GeoFenceManagerProps> =({feature,mapRe
   const [bufferType,setBufferType] = React.useState<OptionsTypes>();
   const [editMode, setEditMode] = useState(false);
 
+
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(event.target.value)
+    // console.log(event.target.value)
     // setBufferRadius(Number(event.target.value));
     setCircleRadius(Number(event.target.value))
   };
@@ -567,7 +569,7 @@ const GeofenceManager : FunctionComponent<GeoFenceManagerProps> =({feature,mapRe
       if (feature) {
         setPoints(feature.geometry.coordinates)
         const map = mapRef.current?.getMap?.();
-        const circle = turf.buffer(feature, circleRadius, {units: 'miles'});
+        const circle = turf.buffer(feature, circleRadius*0.000621371, {units: 'miles'});
         const angle = (Date.now() / 1000) % 360;
         const buffered = turf.transformRotate(circle, angle, { pivot: feature });
         const point = turf.pointOnFeature(feature);
@@ -585,8 +587,6 @@ const GeofenceManager : FunctionComponent<GeoFenceManagerProps> =({feature,mapRe
   }
   //  To Do migrate compute buffer to one function.
   const saveGeofence = ()=>{
-    console.log(systemType)
-    console.log(bufferType)
     axios.post(getFullUrl(`/api/v1/gps/addFence?token=${token}`),{
       system: systemType,
       type: bufferType,
@@ -597,7 +597,9 @@ const GeofenceManager : FunctionComponent<GeoFenceManagerProps> =({feature,mapRe
       outSwitch: outSwitch,
       fenceType: fenceType,
       pushSubFlag: pushSubFlag
-    }).then(()=>{
+    }).then((res)=>{
+      console.log(res.data)
+      setGeofenceId(res.data)
       growl.current.show({
         severity:"success",
         summary:"Geo fence created successfully"
@@ -621,7 +623,7 @@ const GeofenceManager : FunctionComponent<GeoFenceManagerProps> =({feature,mapRe
       setoutSwitch(Geofence.outSwitch)
       var p = Geofence.points[0] as unknown as  Array <string>
       var point = turf.point([Number(p[0]), Number(p[1])]);
-      var buffered = turf.buffer(point, Geofence.radius, {units: 'miles'});
+      var buffered = turf.buffer(point, Geofence.radius*0.000621371, {units: 'miles'});
       setBuffer(buffered)
       const bounds = turf.bbox(buffered);
       const lngLatBounds = new mapboxgl.LngLatBounds(
@@ -683,7 +685,7 @@ const GeofenceManager : FunctionComponent<GeoFenceManagerProps> =({feature,mapRe
         <InputText id="labels" aria-describedby="labels-help" value= {fenceName} onChange={(e)=>setFenceName(e.target.value)} />
       </div>
       <div className="input-group">
-        <label htmlFor="labels">radius(Miles)</label>
+        <label htmlFor="labels">Radius(Meters)</label>
         <InputText  id="labels" aria-describedby="labels-help" value={circleRadius as unknown as string} onChange= {(handleChange)} />
       </div>
       <div className="input-group">
